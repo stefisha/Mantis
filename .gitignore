@@ -1,0 +1,31 @@
+# Python-related
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Chroma DB and other persisted data
+chroma_db/
+
+# Jupyter notebook checkpoints
+# .ipynb_checkpoints/
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Temporary files
+*.swp
+*.bak
+
+# API key / secret files (keep these out of version control)
+*.env
