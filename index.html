@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI PDF Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #6200ea;
+    }
+    .upload-section, .chat-section, .clear-section {
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #6200ea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #5300d1;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    #chat-history {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .message {
+      margin-bottom: 15px;
+    }
+    .user-message {
+      font-weight: bold;
+      color: #333;
+    }
+    .ai-message {
+      font-style: italic;
+      color: #6200ea;
+    }
+    .context {
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI PDF Chat</h1>
+
+    <div class="upload-section">
+      <label for="pdf-upload">Upload a PDF:</label>
+      <input type="file" id="pdf-upload" accept=".pdf">
+      <button onclick="uploadPDF()">Upload</button>
+      <p id="upload-status"></p>
+    </div>
+
+    <div class="clear-section">
+      <button onclick="clearPDFs()">Clear PDFs in Memory</button>
+      <p id="clear-status"></p>
+    </div>
+
+    <div class="chat-section">
+      <label for="query">Ask a question:</label>
+      <textarea id="query" placeholder="Type your question here..."></textarea>
+      <button onclick="askQuestion()">Ask</button>
+      <div id="chat-history"></div>
+    </div>
+  </div>
+
+  <script>
+    const backendUrl = "http://127.0.0.1:8000";
+
+    async function uploadPDF() {
+      const fileInput = document.getElementById("pdf-upload");
+      const uploadStatus = document.getElementById("upload-status");
+      if (!fileInput.files.length) {
+        uploadStatus.innerText = "Please select a PDF file.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      uploadStatus.innerText = "Uploading...";
+      try {
+        const response = await fetch(`${backendUrl}/upload-pdf`, {
+          method: "POST",
+          body: formData
+        });
+        const result = await response.json();
+        if (response.ok) {
+          uploadStatus.innerText = "PDF uploaded and processed successfully!";
+        } else {
+          uploadStatus.innerText = `Error: ${result.detail}`;
+        }
+      } catch (error) {
+        uploadStatus.innerText = "An error occurred during upload.";
+      }
+    }
+
+    async function clearPDFs() {
+      const clearStatus = document.getElementById("clear-status");
+      clearStatus.innerText = "Clearing PDFs...";
+      try {
+        const response = await fetch(`${backendUrl}/clear-pdfs`, {
+          method: "POST"
+        });
+        const result = await response.json();
+        if (response.ok) {
+          clearStatus.innerText = result.message;
+        } else {
+          clearStatus.innerText = `Error: ${result.detail}`;
+        }
+      } catch (error) {
+        clearStatus.innerText = "An error occurred while clearing PDFs.";
+      }
+    }
+
+    async function askQuestion() {
+      const queryInput = document.getElementById("query");
+      const chatHistory = document.getElementById("chat-history");
+      const question = queryInput.value.trim();
+
+      if (!question) {
+        alert("Please enter a question.");
+        return;
+      }
+
+      // Display the user's question
+      const userMessage = document.createElement("div");
+      userMessage.classList.add("message", "user-message");
+      userMessage.innerText = `You: ${question}`;
+      chatHistory.appendChild(userMessage);
+
+      try {
+        const response = await fetch(`${backendUrl}/ask-question`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+        const result = await response.json();
+
+        // Display the AI's response
+        const aiMessage = document.createElement("div");
+        aiMessage.classList.add("message", "ai-message");
+        aiMessage.innerText = `AI: ${result.response || "No response available."}`;
+        chatHistory.appendChild(aiMessage);
+
+        // Display context (where the information was found)
+        const contextMessage = document.createElement("div");
+        contextMessage.classList.add("message", "context");
+        contextMessage.innerHTML = `Context: <br>${result.context || "No context available."}`;
+        chatHistory.appendChild(contextMessage);
+
+      } catch (error) {
+        const errorMessage = document.createElement("div");
+        errorMessage.classList.add("message", "ai-message");
+        errorMessage.innerText = "Error: Unable to get a response.";
+        chatHistory.appendChild(errorMessage);
+      }
+
+      chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+    }
+  </script>
+</body>
+</html>
