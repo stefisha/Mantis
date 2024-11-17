@@ -1,0 +1,155 @@
+/* Basic Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f9f7;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+  
+  .container {
+    max-width: 900px; /* Set a max-width to increase the width of the container */
+    width: 80%; /* Adjust the width to 80% of the screen */
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #4caf50;
+    font-size: 2rem;
+  }
+  
+  /* Navbar */
+  header {
+    background-color: #4caf50;
+    padding: 10px 0;
+  }
+  
+  nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+  }
+  
+  nav li {
+    margin: 0 15px;
+  }
+  
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+  }
+  
+  nav a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Upload Section */
+  .upload-section {
+    margin-bottom: 20px;
+  }
+  
+  .upload-section label,
+  .upload-section input,
+  .upload-section button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: auto; /* Prevent stretching */
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Clear Section */
+  .clear-section {
+    margin-bottom: 20px;
+  }
+  
+  .clear-section button {
+    background-color: #f44336;
+  }
+  
+  .clear-section button:hover {
+    background-color: #e53935;
+  }
+  
+  /* Chat Section */
+  .chat-section {
+    margin-top: 30px;
+  }
+  
+  .chat-section textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: vertical; /* Allow vertical resizing */
+  }
+  
+  /* Ensure chat container has a fixed size until response is received */
+  #chat-history {
+    max-height: 400px; /* Set a fixed height */
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 10px;
+    transition: height 0.3s ease;
+  }
+  
+  #chat-history p {
+    margin: 5px 0;
+  }
+  
+  .message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .user-message {
+    background-color: #e1f5fe;
+    border-left: 5px solid #039be5;
+  }
+  
+  .ai-message {
+    background-color: #c8e6c9;
+    border-left: 5px solid #388e3c;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #4caf50;
+    padding: 10px 0;
+    text-align: center;
+    color: white;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+  }
+  

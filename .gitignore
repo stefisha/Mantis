@@ -29,3 +29,6 @@ Thumbs.db
 
 # API key / secret files (keep these out of version control)
 *.env
+
+# pdf
+.pdf

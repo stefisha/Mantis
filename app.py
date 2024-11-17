@@ -121,7 +121,6 @@ async def upload_pdf(file: UploadFile = File(...)):
         logger.error(f"Error processing PDF: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing PDF: {e}")
 
-
 @app.post("/clear-pdfs")
 async def clear_pdfs():
     global vector_store
@@ -147,36 +146,40 @@ async def ask_question(request: QueryRequest):
         if not relevant_docs:
             raise HTTPException(status_code=404, detail="No relevant context found.")
 
-        # Log the metadata to verify it
-        for doc in relevant_docs:
-            logger.info(f"Document metadata: {doc.metadata}")
-
         # Build context by including content with page and paragraph info
         context = ""
+        references = []
         for doc in relevant_docs:
             page = doc.metadata.get('page', 'Unknown Page')  # Safely access 'page' metadata
             paragraph = doc.metadata.get('paragraph', 'Unknown Paragraph')  # Safely access 'paragraph' metadata
-            context += f"Page {page} (Paragraph): {doc.page_content}\n"
+            context += f"{doc.page_content}\n"
+            references.append(f"Page {page} (Paragraph): {doc.page_content}")
 
         logger.info(f"Retrieved context: {context}")
 
         # Format the prompt with the context and query
         prompt = PromptTemplate(
             input_variables=["context", "query"],
-            template=( 
-                "Use the following context extracted from the PDF to answer the query. "
-                "Be specific and refer to the page numbers and paragraphs when relevant:\n\n"
-                "Context:\n{context}\n\nQuery:\n{query}"
-            )
+            template=("Provide a concise answer based on the context provided. "
+                      "Be clear, direct, and do not refer to the question or the context "
+                      "directly in your response. Answer the user's question with the context:\n"
+                      "Context:\n{context}\n\nQuestion:\n{query}")
         )
         formatted_prompt = prompt.format(context=context, query=request.question)
         response = chat_model.predict(formatted_prompt)
 
+        final_response = response.strip()
+
+        # Only include references if relevant content was retrieved
+        if references:
+            final_response += "\n\nReferences:\n" + "\n".join(references)
+
         return {
             "success": True,
-            "response": response,
-            "context": context,  # Optional: Include the context for debugging or frontend use
+            "response": final_response,
+            "context": context  # Optional: Include the context for debugging or frontend use
         }
+
     except Exception as e:
         logger.error(f"Error processing question: {e}")
         raise HTTPException(status_code=500, detail="Error processing question.")
