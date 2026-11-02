@@ -1,0 +1,11 @@
+{
+  "name": "mantis-workspace",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check static/scripts.js",
+    "format": "prettier --write static",
+    "format:check": "prettier --check static"
+  },
+  "devDependencies": {"prettier": "3.6.2"}
+}
