@@ -40,6 +40,8 @@ def main():
                 "/static/js/api.js",
                 "/static/js/workspace.js",
                 "/static/js/product.js",
+                "/static/js/product-demo.js",
+                "/static/js/source-scroll.js",
                 "/static/assets/mantis-mark.png",
                 "/static/assets/Inter-Variable.ttf",
                 "/static/assets/team-stefan.png",

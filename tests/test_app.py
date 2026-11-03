@@ -463,7 +463,12 @@ def test_product_workspace_and_linked_assets_are_served(clients):
             asset = client.get(path)
             assert asset.status_code == 200, path
             assert asset.content, path
-    assert client.get("/static/../../.env").status_code == 404
+    # Encoded separators survive HTTPX URL normalization and reach StaticFiles.
+    # The target exists one directory outside the public web root.
+    assert (application.WEB_DIR.parent / "api.py").is_file()
+    traversal = client.get("/static/..%2Fapi.py")
+    assert b"..%2Fapi.py" in traversal.request.url.raw_path
+    assert traversal.status_code == 404
 
 
 @pytest.mark.parametrize(

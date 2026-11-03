@@ -14,6 +14,7 @@ check:
 	$(PYTHON) -m ruff check app.py mantis tests scripts
 	$(PYTHON) -m ruff format --check app.py mantis tests scripts
 	npm run check
+	npm test
 	npm run format:check
 
 format:

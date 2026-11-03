@@ -20,4 +20,5 @@ jobs:
       - run: python scripts/check_package.py dist/*.whl
       - run: npm ci --ignore-scripts
       - run: npm run check
+      - run: npm test
       - run: npm run format:check

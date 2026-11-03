@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "check": "node scripts/check-frontend.mjs",
-    "format": "prettier --write mantis/web",
-    "format:check": "prettier --check mantis/web"
+    "format": "prettier --write mantis/web tests/frontend",
+    "format:check": "prettier --check mantis/web tests/frontend",
+    "test": "node --test tests/frontend/*.test.mjs"
   },
   "devDependencies": {
     "prettier": "3.6.2"
