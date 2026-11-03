@@ -1,6 +1,6 @@
 # Architecture
 
-Mantis is a same-origin FastAPI application with a buildless HTML/CSS/JavaScript frontend. The maintained application starts at `app.py`; the notebooks retain historical experiments.
+Mantis is a same-origin FastAPI application with a buildless HTML/CSS/JavaScript frontend. The application factory is `mantis/api.py`, with the ASGI instance in `mantis/main.py` and the `mantis` command in `mantis/cli.py`. Root `app.py` preserves the original Uvicorn entry point. The notebooks in `notebooks/` retain historical experiments.
 
 ```mermaid
 flowchart LR
@@ -41,3 +41,11 @@ The API blocks unsafe requests from other origins, validates Host headers, rende
 ## Deployment scale
 
 The current limits are 30 manuals per workspace and 2,000 chunks per manual. Brute-force similarity search and the in-process rate limiter support a small local pilot. Shared hosting requires authentication, shared rate limiting, operational storage policies, and an isolated parser for hostile input. See [deployment guidance](deployment.md).
+
+## Product and frontend layout
+
+`/` serves the product presentation; `/workspace` serves the working assistant. Both pages are packaged under `mantis/web/pages/` and use self-hosted assets. CSS lives in `mantis/web/css/`; JavaScript modules live in `mantis/web/js/`. The product demo and workspace share an API client module. Product navigation uses real section anchors and links into the workspace. Demo mode is activated by `/workspace#demo`.
+
+The landing page follows the owner-supplied design reference while using the original presentation's logos, team portraits, names, and role labels. Mock telemetry, inventory records, invented performance figures, and unsupported certifications from the reference are not product data.
+
+The Python wheel includes HTML, CSS, scripts, fonts, logos, and portraits through setuptools package data. Runtime data and `.env` are resolved from the working directory, so an installed package can run outside the source checkout.

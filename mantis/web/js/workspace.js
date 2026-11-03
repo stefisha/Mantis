@@ -1,4 +1,5 @@
-"use strict";
+import { api } from "./api.js";
+("use strict");
 const $ = (id) => document.getElementById(id);
 const state = {
   documents: [],
@@ -16,24 +17,6 @@ function toast(message) {
   toastTimer = setTimeout(() => {
     $("toast").hidden = true;
   }, 7000);
-}
-async function api(path, options = {}) {
-  const response = await fetch("/api" + path, options);
-  let body;
-  try {
-    body = await response.json();
-  } catch {
-    throw new Error(
-      "The server returned an unexpected response. Please retry.",
-    );
-  }
-  if (!response.ok)
-    throw new Error(
-      typeof body.detail === "string"
-        ? body.detail
-        : "Please check the submitted information.",
-    );
-  return body;
 }
 function element(tag, className, text) {
   const el = document.createElement(tag);
@@ -94,6 +77,11 @@ function choose(id, demo = false) {
 }
 function renderDocuments() {
   $("nav-count").textContent = state.documents.length;
+  $("manual-count").textContent = state.documents.length;
+  $("page-count").textContent = state.documents.reduce(
+    (sum, doc) => sum + doc.pages,
+    0,
+  );
   const sidebar = $("sidebar-documents");
   sidebar.replaceChildren();
   if (!state.documents.length)
@@ -102,7 +90,13 @@ function renderDocuments() {
     );
   for (const doc of state.documents) {
     const b = element("button");
-    b.append(element("span", "", "▤"), element("span", "", doc.name));
+    const details = element("div");
+    details.append(
+      element("span", "manual-name", doc.name),
+      element("small", "", `${doc.equipment || "Manual"} · ${doc.pages} pages`),
+    );
+    b.classList.toggle("selected", doc.id === state.selected);
+    b.append(element("span", "", "▤"), details);
     b.addEventListener("click", () => choose(doc.id));
     sidebar.append(b);
   }
@@ -263,7 +257,7 @@ function inspect(source) {
     detail.append(
       element("p", "", "Illustrative demo material. Not a service procedure."),
     );
-  if (window.innerWidth < 900)
+  if (window.innerWidth < 1100)
     detail.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 function addMessage(role, text, result) {
@@ -423,6 +417,7 @@ zone.addEventListener("drop", (event) => {
       ? "AI service configured"
       : "Demo ready · AI not configured";
     await refresh();
+    if (location.hash === "#demo") choose("", true);
   } catch (e) {
     $("connection-label").textContent = "Server unavailable";
     $("connection-dot").style.backgroundColor = "#c48d6c";

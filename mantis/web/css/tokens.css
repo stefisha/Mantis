@@ -1,0 +1,25 @@
+@font-face {
+  font-family: Inter;
+  src: url("/static/assets/Inter-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/static/assets/JetBrainsMono-Variable.ttf") format("truetype");
+  font-weight: 100 800;
+  font-display: swap;
+}
+:root {
+  color-scheme: dark;
+  --bg: #121316;
+  --panel: #1b1c21;
+  --raised: #24262e;
+  --text: #f3f5fa;
+  --muted: #9aa3b3;
+  --line: #ffffff0d;
+  --orange: #ff781a;
+  --amber: #ffb95f;
+  --cyan: #7bd0ff;
+  --mono: "JetBrains Mono", monospace;
+}

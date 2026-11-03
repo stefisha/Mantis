@@ -28,7 +28,7 @@ The next product steps are representative retrieval evaluation, authenticated te
 
 ## Project background
 
-Mantis began as an exploratory PDF question-answering prototype and grew into a browser-based maintenance workspace. Its visual identity follows the original CoraLabs project presentation: the Mantis mark, a black canvas, orange accents, and condensed headings.
+Mantis began as an exploratory PDF question-answering prototype and grew into a browser-based maintenance workspace. Its visual identity follows the original CoraLabs project presentation: the original Mantis mark and orange accents, adapted to charcoal surfaces and a readable Inter/JetBrains Mono interface.
 
 The project presentation credits **Petar Bošković**, **Stefan Veličković**, and **Željko Antonijević** as the CoraLabs team.
 
