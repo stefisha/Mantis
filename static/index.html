@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mantis — your maintenance knowledge, ready when you need it."
+    />
+    <title>Mantis · Maintenance workspace</title>
+    <link
+      rel="preload"
+      href="/static/assets/Anton-Regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/scripts.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Mantis home"
+        ><span class="brand-icon"
+          ><img src="/static/assets/mantis-mark.png" alt="" /></span
+        ><span>MANTIS</span></a
+      >
+      <div class="workspace-label">
+        <span class="workspace-icon">W</span>
+        <div>Maintenance workspace<small>Personal workspace</small></div>
+        <span class="online-dot"></span>
+      </div>
+      <p class="nav-label">WORKSPACE</p>
+      <nav aria-label="Workspace">
+        <button class="nav-item active" id="assistant-nav">
+          <span>◈</span> Maintenance assistant</button
+        ><button class="nav-item" id="library-nav">
+          <span>▤</span> Manual library
+          <span class="count" id="nav-count">0</span>
+        </button>
+      </nav>
+      <div class="library-title">
+        <p class="nav-label">YOUR MANUALS</p>
+        <button
+          class="icon-button"
+          id="add-manual"
+          aria-label="Upload a manual"
+        >
+          +
+        </button>
+      </div>
+      <div id="sidebar-documents" class="sidebar-documents">
+        <p class="muted small">Your manuals will appear here.</p>
+      </div>
+      <button class="sidebar-upload" id="upload-sidebar">
+        <span>↥</span> Upload a manual
+      </button>
+      <div class="sidebar-bottom">
+        <div class="connection">
+          <span class="online-dot" id="connection-dot"></span
+          ><span id="connection-label">Connecting…</span>
+        </div>
+        <button id="help-button" class="help-button">
+          ⓘ &nbsp; About this workspace
+        </button>
+        <div class="profile">
+          <span>ME</span>
+          <div>My workspace<small>Maintenance engineering</small></div>
+        </div>
+      </div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar">
+        <div>
+          <span class="breadcrumb">Workspace</span><span class="slash">/</span
+          ><span id="page-label">Maintenance assistant</span>
+        </div>
+        <span class="private-badge">◉ &nbsp; Browser workspace</span>
+      </header>
+      <main>
+        <section id="assistant-view">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow"><span></span> MAINTENANCE ON AUTOPILOT</p>
+              <h1>OUTSMART<br /><span class="accent">DOWNTIME.</span></h1>
+              <p class="intro">
+                Turn your equipment manuals into clear, actionable answers.<br />Your
+                maintenance knowledge, one question away.
+              </p>
+            </div>
+            <div class="heading-art" aria-hidden="true">
+              <div class="art-target"></div>
+              <img src="/static/assets/mantis-mark.png" alt="" /><span
+                >MANTIS / YOUR MAINTENANCE CO-PILOT</span
+              >
+            </div>
+          </div>
+          <div class="workspace-strip">
+            <span class="status-dot"></span
+            ><strong id="mode-label">Ready to get started</strong
+            ><span id="mode-description"
+              >Add a manual or explore the sample workspace</span
+            ><button id="demo-button">Explore demo <span>↗</span></button>
+          </div>
+          <div class="assistant-layout">
+            <section class="chat-panel" aria-label="Maintenance assistant">
+              <div class="panel-heading">
+                <div>
+                  <span class="assistant-symbol">✳</span
+                  ><strong>Maintenance assistant</strong>
+                </div>
+                <button class="text-button" id="new-chat">
+                  ↻ &nbsp; New conversation
+                </button>
+              </div>
+              <div class="manual-selector">
+                <label for="manual-select">SEARCH WITHIN</label
+                ><select id="manual-select">
+                  <option value="">Select an equipment manual</option>
+                </select>
+              </div>
+              <div class="chat-scroll" id="chat-scroll">
+                <div class="welcome" id="welcome">
+                  <span class="welcome-icon"
+                    ><img src="/static/assets/mantis-mark.png" alt=""
+                  /></span>
+                  <h2>LET’S GET TO WORK.</h2>
+                  <p>
+                    Describe a symptom, look up a procedure, or find<br />a
+                    detail in your equipment documentation.
+                  </p>
+                  <div class="suggestions">
+                    <button
+                      data-question="What should I check for excessive vibration?"
+                    >
+                      <span>⌁</span>
+                      <div>
+                        Troubleshoot a symptom<small
+                          >“What should I check for excessive vibration?”</small
+                        >
+                      </div>
+                      <span>↗</span></button
+                    ><button
+                      data-question="What should I check for overheating?"
+                    >
+                      <span>♨</span>
+                      <div>
+                        Find the right checks<small
+                          >“What should I check for overheating?”</small
+                        >
+                      </div>
+                      <span>↗</span></button
+                    ><button
+                      data-question="What should I record during preventive maintenance?"
+                    >
+                      <span>▤</span>
+                      <div>
+                        Plan maintenance<small
+                          >“What should I record during an inspection?”</small
+                        >
+                      </div>
+                      <span>↗</span>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="messages"
+                  aria-live="polite"
+                  aria-relevant="additions"
+                ></div>
+              </div>
+              <form id="question-form" class="composer">
+                <label class="sr-only" for="question"
+                  >Your maintenance question</label
+                ><textarea
+                  id="question"
+                  rows="2"
+                  maxlength="2000"
+                  placeholder="Ask about your equipment, a fault, or a procedure…"
+                ></textarea>
+                <div class="composer-bottom">
+                  <span
+                    ><span class="status-dot"></span>
+                    <span id="composer-mode"
+                      >Grounded in your manuals</span
+                    ></span
+                  ><button
+                    class="send-button"
+                    id="send-button"
+                    type="submit"
+                    aria-label="Send question"
+                  >
+                    ↑
+                  </button>
+                </div>
+              </form>
+              <p class="chat-disclaimer">
+                Verify answers against the cited manual and your approved site
+                procedures.
+              </p>
+            </section>
+            <aside class="context-column">
+              <section class="upload-card">
+                <span class="card-kicker">YOUR KNOWLEDGE, CONNECTED</span>
+                <h2>KNOWLEDGE. CONNECTED.</h2>
+                <p>
+                  Add equipment documentation so every answer starts from the
+                  right source.
+                </p>
+                <button id="drop-zone" class="drop-zone">
+                  <span class="upload-icon">↥</span
+                  ><strong>Drop a PDF here</strong
+                  ><span>or <u>browse files</u></span
+                  ><small>Text-based PDF · up to 20 MB</small>
+                </button>
+                <div class="privacy-note">
+                  ◈
+                  <span
+                    >Manuals stay in this browser’s workspace.<br />Text is sent
+                    to OpenAI for analysis.</span
+                  >
+                </div>
+              </section>
+              <section class="source-card">
+                <div class="source-card-heading">
+                  <h3>Source inspector</h3>
+                  <span>↗</span>
+                </div>
+                <div id="source-detail">
+                  <div class="source-empty">▧</div>
+                  <h4>Answers you can trace.</h4>
+                  <p>
+                    Select a citation in an answer to see the exact manual
+                    passage here.
+                  </p>
+                </div>
+              </section>
+              <div class="workflow-note">
+                <span>01 / UNDERSTAND</span>
+                <p>The right knowledge.<br />Right at the point of work.</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+        <section id="library-view" hidden>
+          <div class="library-page-heading">
+            <div>
+              <p class="eyebrow">YOUR SOURCE OF TRUTH</p>
+              <h1>Manual library<span class="accent">.</span></h1>
+              <p class="intro">
+                Equipment documentation, organized and ready to ask.
+              </p>
+            </div>
+            <button class="primary-button" id="library-upload">
+              + Upload manual
+            </button>
+          </div>
+          <div class="library-toolbar">
+            <input
+              id="library-search"
+              type="search"
+              placeholder="Search manuals or equipment…"
+              aria-label="Search manuals"
+            /><button id="clear-library" class="danger-text">
+              Clear library
+            </button>
+          </div>
+          <div id="library-list"></div>
+        </section>
+        <footer>
+          <span>MANTIS / MAINTENANCE ON AUTOPILOT</span
+          ><span
+            ><img
+              class="coralabs-logo"
+              src="/static/assets/coralabs-mark.png"
+              alt=""
+            />
+            BUILT BY CORALABS</span
+          >
+        </footer>
+      </main>
+    </div>
+    <input id="file-input" type="file" accept="application/pdf,.pdf" hidden />
+    <dialog id="upload-dialog">
+      <form id="upload-form">
+        <div class="dialog-heading">
+          <h2>Add equipment manual</h2>
+          <button
+            class="icon-button"
+            type="button"
+            id="close-upload"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <p>
+          Choose the equipment this manual belongs to. You’ll use it to keep
+          answers specific.
+        </p>
+        <div id="upload-filename" class="filename"></div>
+        <label for="equipment"
+          >Equipment / model <span class="muted">(optional)</span></label
+        ><input
+          id="equipment"
+          maxlength="120"
+          placeholder="e.g. Compressor AC-200"
+        />
+        <p class="small muted">
+          The PDF text will be sent to OpenAI to create a searchable index.
+        </p>
+        <button type="submit" id="confirm-upload" class="primary-button">
+          Upload and index manual
+        </button>
+        <p id="upload-progress" role="status"></p>
+      </form>
+    </dialog>
+    <dialog id="help-dialog">
+      <div class="dialog-heading">
+        <h2>Built around your manuals.</h2>
+        <button id="close-help" class="icon-button" aria-label="Close">
+          ×
+        </button>
+      </div>
+      <p>
+        Mantis helps maintenance engineers find answers in equipment
+        documentation, with page-level sources.
+      </p>
+      <p>
+        Choose a manual, ask a specific question, then inspect its citations.
+        Each question is answered independently—include the relevant equipment,
+        symptom, or fault code.
+      </p>
+      <p>
+        Your workspace is remembered by a browser cookie. Clearing cookies loses
+        access to it. This is a local deployment; team sign-in is not included.
+      </p>
+      <p>
+        Demo mode uses an illustrative training manual and returns source
+        excerpts without AI calls. It is not an equipment service manual.
+      </p>
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+  </body>
+</html>

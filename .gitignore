@@ -1,34 +1,15 @@
-# Python-related
 __pycache__/
-*.pyc
-*.pyo
-
-# Virtual environment
+*.py[cod]
+.venv/
 venv/
-
-# Chroma DB and other persisted data
+.env
+.env.*
+!.env.example
+data/
 chroma_db/
-
-# Jupyter notebook checkpoints
-# .ipynb_checkpoints/
-
-# IDE and editor files
-.vscode/
-.idea/
-
-# Operating system files
+.pytest_cache/
+*.egg-info/
+.ipynb_checkpoints/
 .DS_Store
-Thumbs.db
-
-# Log files
 *.log
-
-# Temporary files
-*.swp
-*.bak
-
-# API key / secret files (keep these out of version control)
-*.env
-
-# pdf
-.pdf
+node_modules/
