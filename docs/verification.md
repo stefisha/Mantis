@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **20 passing Python regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **24 passing Python regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -29,3 +29,7 @@ The desktop and mobile layouts, demo question/citation flow, question-field keyb
 Passing software tests does not measure industrial troubleshooting accuracy. A representative retrieval/answer evaluation set, live-provider smoke test, real-device field study, and shared-deployment security review remain future work. The demo returns illustrative excerpts; it is not a measured AI evaluation.
 
 Run the checks using [the contributor guide](../CONTRIBUTING.md).
+
+## Distribution check
+
+CI builds the Python wheel and runs `scripts/check_package.py` against its extracted contents. This verifies that both pages, shared frontend modules, fonts, original branding, team imagery, and the demo API work independently of an editable source checkout. Runtime secrets and database files are rejected if found in the archive.

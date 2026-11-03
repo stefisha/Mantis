@@ -21,7 +21,13 @@
 
 **Mantis helps maintenance engineers find answers in equipment manuals and trace them back to the source.** Upload a PDF, select the right equipment manual, and ask about a symptom, fault code, or maintenance procedure. Inspect the supporting passages and open the original PDF at the cited page.
 
-It began as an exploratory PDF-chat prototype. It now includes a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
+It began as an exploratory PDF-chat prototype. It now includes a product landing page, a dedicated maintenance workspace, a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
+
+## Product and workspace
+
+The product page introduces Mantis and includes a live, illustrative demo. The dedicated workspace handles your manuals, questions, and source inspection.
+
+![Mantis product page](docs/assets/product.png)
 
 ![Mantis maintenance workspace with its equipment-manual selector, troubleshooting assistant, and source inspector](docs/assets/workspace.png)
 
@@ -50,10 +56,10 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.lock
 python -m pip install -e . --no-deps
 cp .env.example .env
-python -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
+mantis --reload
 ```
 
-Open **[127.0.0.1:8000](http://127.0.0.1:8000)**. FastAPI serves both the UI and API; there is no separate frontend server or build step. If `.env` already exists, keep it rather than copying over it.
+Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[workspace](http://127.0.0.1:8000/workspace)**. The product page is at `/`; the working assistant is at `/workspace`. FastAPI serves both the UI and API; there is no separate frontend server or build step. If `.env` already exists, keep it rather than copying over it.
 
 ### 1. Explore the demo
 
@@ -73,13 +79,13 @@ Select a citation to inspect its passage or open the PDF at the referenced page.
 
 **PDF → page-local chunks → embeddings → selected-manual retrieval → structured answer → validated source IDs.**
 
-FastAPI handles requests; SQLite stores manuals, chunks, and embeddings. The frontend is plain HTML/CSS/JavaScript. Duplicate detection and quota enforcement are serialized in a write transaction. An ASGI body limiter rejects oversized uploads before multipart parsing.
+FastAPI handles requests; SQLite stores manuals, chunks, and embeddings. The frontend is plain HTML/CSS/JavaScript, organized into product and workspace pages with shared API access. Duplicate detection and quota enforcement are serialized in a write transaction. An ASGI body limiter rejects oversized uploads before multipart parsing.
 
 Read the [architecture guide](docs/architecture.md) for retrieval behavior, concurrency, isolation, and scale boundaries.
 
 ## Quality and current limits
 
-- **20 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
+- **24 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
 - **CI** runs Python tests and lint/format checks plus JavaScript syntax and formatting checks.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.
@@ -89,15 +95,18 @@ Workspaces are remembered by an opaque browser cookie, not an employee account. 
 ## Project map
 
 ```text
-app.py                   Same-origin API, workspace handling, retrieval, frontend serving
+app.py                   Compatibility ASGI entry point
+mantis/api.py            Application factory and same-origin API
+mantis/main.py           Packaged ASGI entry point
+mantis/cli.py            Local server command
+mantis/web/              Packaged product page, workspace, styles, scripts, and assets
 mantis/                  PDF chunking, transactional storage, upload-body middleware
-static/                  Maintenance workspace UI and original project branding
 tests/                   Generated-PDF, API, storage, and concurrency regressions
 docs/                    About, architecture, configuration, verification, deployment
 .github/workflows/       CI checks
 requirements.lock        Pinned Python runtime and development dependencies
 package-lock.json        Pinned frontend development tools
-*.ipynb                  Historical PDF, speech, and object-detection experiments
+notebooks/               Historical PDF, speech, and object-detection experiments
 ```
 
 ## Development
@@ -105,8 +114,8 @@ package-lock.json        Pinned frontend development tools
 ```sh
 npm ci --ignore-scripts
 pytest -q
-ruff check app.py report_rag.py mantis tests
-ruff format --check app.py report_rag.py mantis tests
+ruff check app.py mantis tests scripts
+ruff format --check app.py mantis tests scripts
 npm run check
 npm run format:check
 ```
@@ -121,6 +130,6 @@ Mantis is a **CoraLabs** maintenance-assistance project. Its next steps are repr
 
 ## Credits and asset terms
 
-The Mantis and CoraLabs marks come from the original project presentation. Anton and Space Mono are bundled under the SIL Open Font License; see [asset provenance and licenses](static/assets/README.md). Research notebooks use Whisper and Grounding DINO.
+The Mantis and CoraLabs marks come from the original project presentation. Inter, JetBrains Mono, Anton, and Space Mono are bundled under the SIL Open Font License; see [asset provenance and licenses](mantis/web/assets/README.md). Research notebooks use Whisper and Grounding DINO.
 
 No project-wide code license is included yet. Credentials and private manuals belong outside Git; see [credential handling](docs/deployment.md#credentials) for the historical prototype cleanup.

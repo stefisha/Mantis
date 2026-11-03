@@ -9,8 +9,8 @@ After installing the pinned Python dependencies:
 ```sh
 npm ci --ignore-scripts
 pytest -q
-ruff check app.py report_rag.py mantis tests
-ruff format --check app.py report_rag.py mantis tests
+ruff check app.py mantis tests scripts
+ruff format --check app.py mantis tests scripts
 npm run check
 npm run format:check
 ```
@@ -18,7 +18,7 @@ npm run format:check
 To format changed code:
 
 ```sh
-ruff format app.py report_rag.py mantis tests
+ruff format app.py mantis tests scripts
 npm run format
 ```
 

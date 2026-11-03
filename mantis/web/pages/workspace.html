@@ -8,15 +8,9 @@
       content="Mantis — your maintenance knowledge, ready when you need it."
     />
     <title>Mantis · Maintenance workspace</title>
-    <link
-      rel="preload"
-      href="/static/assets/Anton-Regular.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
-    />
-    <link rel="stylesheet" href="/static/styles.css" />
-    <script src="/static/scripts.js" defer></script>
+
+    <link rel="stylesheet" href="/static/css/workspace.css" />
+    <script type="module" src="/static/js/workspace.js"></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -27,7 +21,7 @@
       >
       <div class="workspace-label">
         <span class="workspace-icon">W</span>
-        <div>Maintenance workspace<small>Personal workspace</small></div>
+        <div>Maintenance workspace<small>Local pilot workspace</small></div>
         <span class="online-dot"></span>
       </div>
       <p class="nav-label">WORKSPACE</p>
@@ -65,7 +59,7 @@
         </button>
         <div class="profile">
           <span>ME</span>
-          <div>My workspace<small>Maintenance engineering</small></div>
+          <div>Local workspace<small>Maintenance engineering</small></div>
         </div>
       </div>
     </aside>
@@ -75,24 +69,28 @@
           <span class="breadcrumb">Workspace</span><span class="slash">/</span
           ><span id="page-label">Maintenance assistant</span>
         </div>
-        <span class="private-badge">◉ &nbsp; Browser workspace</span>
+        <div class="topbar-actions">
+          <a href="/">← Product</a
+          ><span class="private-badge">◉ &nbsp; Browser workspace</span>
+        </div>
       </header>
       <main>
         <section id="assistant-view">
           <div class="page-heading">
             <div>
-              <p class="eyebrow"><span></span> MAINTENANCE ON AUTOPILOT</p>
-              <h1>OUTSMART<br /><span class="accent">DOWNTIME.</span></h1>
+              <p class="eyebrow"><span></span> YOUR MAINTENANCE WORKSPACE</p>
+              <h1>Maintenance co-pilot<span class="accent">.</span></h1>
               <p class="intro">
-                Turn your equipment manuals into clear, actionable answers.<br />Your
-                maintenance knowledge, one question away.
+                Ask the right manual. Inspect the source. Keep work moving.
               </p>
             </div>
-            <div class="heading-art" aria-hidden="true">
-              <div class="art-target"></div>
-              <img src="/static/assets/mantis-mark.png" alt="" /><span
-                >MANTIS / YOUR MAINTENANCE CO-PILOT</span
-              >
+            <div class="workspace-metrics">
+              <div>
+                <strong id="manual-count">0</strong><span>MANUALS</span>
+              </div>
+              <div>
+                <strong id="page-count">0</strong><span>PAGES INDEXED</span>
+              </div>
             </div>
           </div>
           <div class="workspace-strip">
@@ -124,7 +122,7 @@
                   <span class="welcome-icon"
                     ><img src="/static/assets/mantis-mark.png" alt=""
                   /></span>
-                  <h2>LET’S GET TO WORK.</h2>
+                  <h2>What are we working on?</h2>
                   <p>
                     Describe a symptom, look up a procedure, or find<br />a
                     detail in your equipment documentation.
@@ -200,9 +198,23 @@
               </p>
             </section>
             <aside class="context-column">
+              <section class="source-card">
+                <div class="source-card-heading">
+                  <h3>Source inspector</h3>
+                  <span>↗</span>
+                </div>
+                <div id="source-detail">
+                  <div class="source-empty">▧</div>
+                  <h4>Answers you can trace.</h4>
+                  <p>
+                    Select a citation in an answer to see the exact manual
+                    passage here.
+                  </p>
+                </div>
+              </section>
               <section class="upload-card">
                 <span class="card-kicker">YOUR KNOWLEDGE, CONNECTED</span>
-                <h2>KNOWLEDGE. CONNECTED.</h2>
+                <h2>Connect a manual.</h2>
                 <p>
                   Add equipment documentation so every answer starts from the
                   right source.
@@ -219,20 +231,6 @@
                     >Manuals stay in this browser’s workspace.<br />Text is sent
                     to OpenAI for analysis.</span
                   >
-                </div>
-              </section>
-              <section class="source-card">
-                <div class="source-card-heading">
-                  <h3>Source inspector</h3>
-                  <span>↗</span>
-                </div>
-                <div id="source-detail">
-                  <div class="source-empty">▧</div>
-                  <h4>Answers you can trace.</h4>
-                  <p>
-                    Select a citation in an answer to see the exact manual
-                    passage here.
-                  </p>
                 </div>
               </section>
               <div class="workflow-note">
