@@ -1,0 +1,31 @@
+# Verification record
+
+The current implementation has **20 passing Python regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+
+## Automated coverage
+
+| Area                | Evidence                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| PDF input           | Real text-PDF extraction, malformed/empty input, file limits                                  |
+| Request limits      | Declared, chunked, and misleading-length uploads rejected before parsing; bounded body replay |
+| Indexing            | Single embedding pass, duplicate reuse, metadata-only digest lookup                           |
+| Persistence         | Documents survive application restart                                                         |
+| Isolation           | Other browser workspaces cannot list, read, or delete the manual                              |
+| Concurrency         | Duplicate writers share one document; competing writers cannot exceed the quota               |
+| Deletion            | Removing a document or library removes indexed chunks                                         |
+| Answer handling     | Source metadata, invalid citation rejection, insufficient-evidence result                     |
+| Failures            | Provider errors leave no partial document                                                     |
+| Browser protections | Cookie attributes/preservation, Origin and Host checks, request limiting                      |
+| Credentials         | Known historical credential locations have no tracked API-key literals                        |
+
+Tests generate their own PDFs and replace the AI provider. They require no live key and make no billable API calls.
+
+## Manual browser checks
+
+The desktop and mobile layouts, demo question/citation flow, question-field keyboard focus, and cancelling/reselecting the same PDF were checked in the local browser. The README screenshot shows the actual local application, not an AI-generated interface mockup.
+
+## What this does not establish
+
+Passing software tests does not measure industrial troubleshooting accuracy. A representative retrieval/answer evaluation set, live-provider smoke test, real-device field study, and shared-deployment security review remain future work. The demo returns illustrative excerpts; it is not a measured AI evaluation.
+
+Run the checks using [the contributor guide](../CONTRIBUTING.md).
