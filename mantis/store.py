@@ -7,6 +7,10 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
+class WorkspaceFullError(Exception):
+    """The workspace has no remaining document slots."""
+
+
 class Store:
     def __init__(self, path):
         self.path = Path(path)
@@ -50,6 +54,16 @@ class Store:
                 )
             ]
 
+    def find_by_digest(self, workspace, digest):
+        with self.connect() as db:
+            row = db.execute(
+                """SELECT id,name,equipment,pages,created,
+                (SELECT count(*) FROM chunks WHERE document_id=documents.id) AS chunks
+                FROM documents WHERE workspace=? AND digest=?""",
+                (workspace, digest),
+            ).fetchone()
+            return dict(row) if row else None
+
     def add(
         self,
         workspace,
@@ -61,17 +75,27 @@ class Store:
         content,
         chunks,
         embeddings,
+        max_documents=30,
     ):
         if len(chunks) != len(embeddings):
             raise ValueError("Embedding count does not match chunks")
         identifier = uuid.uuid4().hex
         with self.connect() as db:
+            # Serialize deduplication, quota enforcement and insertion across connections/processes.
+            db.execute("BEGIN IMMEDIATE")
             old = db.execute(
                 "SELECT id FROM documents WHERE workspace=? AND digest=?",
                 (workspace, digest),
             ).fetchone()
             if old:
                 return old["id"]
+            count = db.execute(
+                "SELECT count(*) FROM documents WHERE workspace=?", (workspace,)
+            ).fetchone()[0]
+            if count >= max_documents:
+                raise WorkspaceFullError(
+                    "This workspace is limited to 30 manuals. Remove a manual before uploading another."
+                )
             db.execute(
                 "INSERT INTO documents(id,workspace,name,equipment,pages,digest,model,content) VALUES(?,?,?,?,?,?,?,?)",
                 (identifier, workspace, name, equipment, pages, digest, model, content),
