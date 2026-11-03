@@ -13,3 +13,6 @@ chroma_db/
 .DS_Store
 *.log
 node_modules/
+
+build/
+dist/

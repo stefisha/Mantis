@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi.testclient import TestClient
 
-import app as application
+import mantis.api as application
 from mantis.rag import cosine, extract_chunks
 
 
@@ -216,7 +216,13 @@ def test_pdf_extraction_and_similarity():
 
 
 def test_current_tracked_sources_have_no_api_keys():
-    for name in ("app.py", "report_rag.py", "Report_Front.ipynb", "Report_Rag.ipynb"):
+    for name in (
+        "app.py",
+        "mantis/api.py",
+        "notebooks/legacy_report_rag.py",
+        "notebooks/Report_Front.ipynb",
+        "notebooks/Report_Rag.ipynb",
+    ):
         assert not re.search(r"sk-[A-Za-z0-9_-]{20,}", Path(name).read_text())
 
 
@@ -431,3 +437,51 @@ def test_empty_upload_body_does_not_hang(clients):
         headers={"Content-Type": "multipart/form-data; boundary=empty"},
     )
     assert result.status_code == 422
+
+
+def test_product_workspace_and_linked_assets_are_served(clients):
+    from html.parser import HTMLParser
+
+    class Assets(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.paths = set()
+
+        def handle_starttag(self, tag, attrs):
+            for name, value in attrs:
+                if name in ("src", "href") and value and value.startswith("/static/"):
+                    self.paths.add(value)
+
+    client, _, _ = clients
+    for page, marker in [("/", "ON AUTOPILOT"), ("/workspace", "manual-select")]:
+        response = client.get(page)
+        assert response.status_code == 200
+        assert marker in response.text
+        parser = Assets()
+        parser.feed(response.text)
+        for path in parser.paths:
+            asset = client.get(path)
+            assert asset.status_code == 200, path
+            assert asset.content, path
+    # Encoded separators survive HTTPX URL normalization and reach StaticFiles.
+    # The target exists one directory outside the public web root.
+    assert (application.WEB_DIR.parent / "api.py").is_file()
+    traversal = client.get("/static/..%2Fapi.py")
+    assert b"..%2Fapi.py" in traversal.request.url.raw_path
+    assert traversal.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "question,page",
+    [
+        ("What should I check for excessive vibration?", 4),
+        ("What should I check for overheating?", 7),
+        ("What should I record during preventive maintenance?", 9),
+    ],
+)
+def test_product_demo_examples_return_the_expected_source(clients, question, page):
+    client, _, _ = clients
+    result = client.post("/api/questions", json={"question": question, "demo": True})
+    assert result.status_code == 200
+    assert result.json()["demo"] is True
+    assert result.json()["sources"][0]["page"] == page

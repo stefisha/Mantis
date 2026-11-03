@@ -3,9 +3,13 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "check": "node --check static/scripts.js",
-    "format": "prettier --write static",
-    "format:check": "prettier --check static"
+    "check": "node scripts/check-frontend.mjs",
+    "format": "prettier --write mantis/web tests/frontend",
+    "format:check": "prettier --check mantis/web tests/frontend",
+    "test": "node --test tests/frontend/*.test.mjs"
   },
-  "devDependencies": {"prettier": "3.6.2"}
+  "devDependencies": {
+    "prettier": "3.6.2"
+  },
+  "type": "module"
 }
