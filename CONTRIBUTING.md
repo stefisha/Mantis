@@ -26,7 +26,7 @@ Tests use generated PDFs and a fake provider. Do not use real manuals, paid API 
 
 ## Interface changes
 
-Follow the existing black/orange identity and bundled font licenses. Check desktop and mobile layouts, keyboard focus, loading/error states, and citation interactions. Render document excerpts as text, never as HTML. Keep illustrative demo content clearly labeled.
+Follow the charcoal/orange interface and bundled font licenses. Shared design tokens live in `mantis/web/css/tokens.css`; product and workspace pages have separate CSS and ES modules in `mantis/web/`. Both use `mantis/web/js/api.js`. Check desktop and mobile layouts, keyboard focus, loading/error states, and citation interactions. Render document excerpts as text, never as HTML. Keep illustrative demo content clearly labeled.
 
 ## Documentation changes
 
@@ -35,3 +35,18 @@ Keep the README concise and link deeper implementation details from `docs/`. Dis
 ## Reporting an issue
 
 Include the expected behavior, actual behavior, reproduction steps, environment, and relevant error message. Redact keys and private document contents. A small synthetic PDF is more useful than a confidential manual.
+
+## Check the built package
+
+From a checkout with the development dependencies installed:
+
+```sh
+python -m pip wheel . --no-deps --wheel-dir dist
+python scripts/check_package.py dist/mantis_maintenance-0.2.0-py3-none-any.whl
+```
+
+The filename reflects the current version in `pyproject.toml`; use the corresponding wheel after a version change. The script extracts the wheel into a temporary directory and verifies that imports, both pages, frontend assets, and the demo API work without relying on the editable checkout. It rejects packaged `.env` and SQLite database files.
+
+## Review the complete user journey
+
+Check `/`, switch the landing demo example, follow a workspace link, and check `/workspace#demo`. In the workspace, exercise manual selection, upload/error states, question/source inspection, library search, and deletion using synthetic data. Check a phone-sized layout and keyboard focus. Provider-backed behavior needs a separate live-service check; automated tests use a fake provider.

@@ -12,6 +12,7 @@
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
   <a href="docs/about.md">About</a> ·
+  <a href="docs/running.md">Run & troubleshoot</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
   <a href="docs/verification.md">Verification</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
@@ -55,15 +56,15 @@ source .venv/bin/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.lock
 python -m pip install -e . --no-deps
-cp .env.example .env
+python -c "from pathlib import Path; p=Path('.env'); p.exists() or p.write_bytes(Path('.env.example').read_bytes())"
 mantis --reload
 ```
 
-Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[workspace](http://127.0.0.1:8000/workspace)**. The product page is at `/`; the working assistant is at `/workspace`. FastAPI serves both the UI and API; there is no separate frontend server or build step. If `.env` already exists, keep it rather than copying over it.
+Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[workspace](http://127.0.0.1:8000/workspace)**. The product page is at `/`; the working assistant is at `/workspace`. FastAPI serves both the UI and API; there is no separate frontend server or build step. The setup command preserves an existing `.env`. See [running and updating](docs/running.md) for alternative entry points, environment/data locations, and troubleshooting.
 
 ### 1. Explore the demo
 
-Choose **Explore demo**, then select a suggested question. Demo mode returns excerpts from an illustrative training manual. It makes no AI calls and does not describe real equipment service procedures.
+On the product page, choose **Try the interactive demo** to explore the embedded sample. In the workspace, choose **Explore demo**, then select a suggested question. You can also open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo) directly. Demo mode returns excerpts from an illustrative training manual. It makes no AI calls and does not describe real equipment service procedures.
 
 ### 2. Connect your manuals
 
@@ -86,7 +87,7 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 ## Quality and current limits
 
 - **24 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **CI** runs Python tests and lint/format checks plus JavaScript syntax and formatting checks.
+- **CI** runs Python tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.
 
@@ -102,7 +103,9 @@ mantis/cli.py            Local server command
 mantis/web/              Packaged product page, workspace, styles, scripts, and assets
 mantis/                  PDF chunking, transactional storage, upload-body middleware
 tests/                   Generated-PDF, API, storage, and concurrency regressions
-docs/                    About, architecture, configuration, verification, deployment
+docs/                    About, running, API, architecture, configuration, verification
+scripts/                 Frontend syntax and built-wheel smoke checks
+Makefile                 install, run, check, and format shortcuts
 .github/workflows/       CI checks
 requirements.lock        Pinned Python runtime and development dependencies
 package-lock.json        Pinned frontend development tools
@@ -119,6 +122,8 @@ ruff format --check app.py mantis tests scripts
 npm run check
 npm run format:check
 ```
+
+With the environment activated, `make install`, `make run`, `make check`, and `make format` provide the corresponding shortcuts. The package build/check commands are documented in [CONTRIBUTING.md](CONTRIBUTING.md#check-the-built-package).
 
 Tests generate their own PDFs and use a fake AI provider; no live key or billable calls are needed. Read [CONTRIBUTING.md](CONTRIBUTING.md) for code, interface, and documentation changes.
 
