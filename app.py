@@ -19,8 +19,9 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from mantis.middleware import UploadBodyLimitMiddleware
 from mantis.rag import DEMO_CHUNKS, cosine, extract_chunks, terms
-from mantis.store import Store
+from mantis.store import Store, WorkspaceFullError
 
 ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env")
@@ -51,6 +52,7 @@ def create_app(data_dir=None):
             "MANTIS_ALLOWED_HOSTS", "127.0.0.1,localhost,[::1],testserver"
         ).split(","),
     )
+    api.add_middleware(UploadBodyLimitMiddleware)
     api.state.store = store
     buckets = defaultdict(deque)
 
@@ -75,7 +77,7 @@ def create_app(data_dir=None):
                 "mantis_workspace",
                 token,
                 httponly=True,
-                samesite="strict",
+                samesite="lax",
                 secure=os.getenv("MANTIS_SECURE_COOKIE", "false").lower() == "true",
                 max_age=31536000,
             )
@@ -123,6 +125,10 @@ def create_app(data_dir=None):
             )
         return vectors
 
+    @api.exception_handler(WorkspaceFullError)
+    async def workspace_full(request, exc):
+        return JSONResponse({"detail": str(exc)}, status_code=409)
+
     @api.exception_handler(OpenAIError)
     async def provider_error(request, exc):
         logger.warning("Provider request failed: %s", type(exc).__name__)
@@ -161,10 +167,15 @@ def create_app(data_dir=None):
         if not content.startswith(b"%PDF-"):
             raise HTTPException(415, "Please upload a valid PDF file.")
         digest = hashlib.sha256(content).hexdigest()
-        for doc in store.documents(request.state.workspace):
-            if store.document(request.state.workspace, doc["id"])["digest"] == digest:
-                return {"document": doc, "duplicate": True}
-        if len(store.documents(request.state.workspace)) >= 30:
+        existing = await run_in_threadpool(
+            store.find_by_digest, request.state.workspace, digest
+        )
+        if existing:
+            return {"document": existing, "duplicate": True}
+        existing_documents = await run_in_threadpool(
+            store.documents, request.state.workspace
+        )
+        if len(existing_documents) >= 30:
             raise HTTPException(
                 409,
                 "This workspace is limited to 30 manuals. Remove a manual before uploading another.",
@@ -183,7 +194,7 @@ def create_app(data_dir=None):
             embed, client, [c["text"] for c in chunks], model
         )
         name = (file.filename or "Manual.pdf").replace("\\", "/").split("/")[-1][:180]
-        identifier = await run_in_threadpool(
+        await run_in_threadpool(
             store.add,
             request.state.workspace,
             name,
@@ -196,10 +207,8 @@ def create_app(data_dir=None):
             vectors,
         )
         return {
-            "document": next(
-                d
-                for d in store.documents(request.state.workspace)
-                if d["id"] == identifier
+            "document": await run_in_threadpool(
+                store.find_by_digest, request.state.workspace, digest
             ),
             "duplicate": False,
         }

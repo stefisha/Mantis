@@ -13,6 +13,8 @@ from mantis.rag import cosine, extract_chunks
 @pytest.fixture
 def clients(tmp_path, monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "test-key-never-sent")
+    monkeypatch.setenv("MANTIS_ALLOWED_HOSTS", "testserver,localhost,127.0.0.1")
+    monkeypatch.setenv("MANTIS_SECURE_COOKIE", "false")
     api = application.create_app(tmp_path)
     first = TestClient(api)
     second = TestClient(api)
@@ -200,7 +202,7 @@ def test_origin_cookie_and_question_validation(clients):
     )
     fresh = TestClient(application.create_app())
     cookie = fresh.get("/api/health").headers["set-cookie"].lower()
-    assert "httponly" in cookie and "samesite=strict" in cookie
+    assert "httponly" in cookie and "samesite=lax" in cookie
 
 
 def test_pdf_extraction_and_similarity():
@@ -257,3 +259,175 @@ def test_provider_failure_leaves_no_partial_document(clients, provider, monkeypa
     result = upload(client)
     assert result.status_code == 502
     assert client.get("/api/documents").json()["documents"] == []
+
+
+def test_cross_site_navigation_keeps_workspace(clients, provider):
+    client, _, _ = clients
+    upload(client)
+    token = client.cookies.get("mantis_workspace")
+    response = client.get(
+        "/", headers={"Sec-Fetch-Site": "cross-site", "Sec-Fetch-Mode": "navigate"}
+    )
+    assert "set-cookie" not in response.headers
+    assert client.cookies.get("mantis_workspace") == token
+    assert len(client.get("/api/documents").json()["documents"]) == 1
+
+
+@pytest.mark.parametrize(
+    "headers", [[], [(b"content-length", b"1")], [(b"content-length", b"999999")]]
+)
+def test_body_limit_before_parser_for_streamed_and_declared_uploads(
+    monkeypatch, headers
+):
+    import asyncio
+
+    from mantis.middleware import UploadBodyLimitMiddleware
+
+    monkeypatch.setenv("MANTIS_MAX_UPLOAD_MB", "0")
+    invoked = []
+    messages = []
+    pieces = iter([b"x" * 32768, b"x" * 32769, b"never consumed"])
+
+    async def downstream(scope, receive, send):
+        invoked.append(True)
+
+    async def receive():
+        return {"type": "http.request", "body": next(pieces), "more_body": True}
+
+    async def send(message):
+        messages.append(message)
+
+    scope = {
+        "type": "http",
+        "method": "POST",
+        "path": "/api/documents",
+        "headers": headers,
+    }
+    asyncio.run(UploadBodyLimitMiddleware(downstream)(scope, receive, send))
+    assert not invoked
+    assert messages[0]["status"] == 413
+
+
+def test_bounded_body_replay_preserves_content(monkeypatch):
+    import asyncio
+
+    from mantis.middleware import UploadBodyLimitMiddleware
+
+    monkeypatch.setenv("MANTIS_MAX_UPLOAD_MB", "1")
+    chunks = iter([b"a" * 70000, b"b" * 30000])
+    captured = []
+
+    async def receive():
+        chunk = next(chunks)
+        return {
+            "type": "http.request",
+            "body": chunk,
+            "more_body": chunk.startswith(b"a"),
+        }
+
+    async def downstream(scope, receive, send):
+        while True:
+            message = await receive()
+            captured.append(message["body"])
+            if not message["more_body"]:
+                break
+
+    async def send(message):
+        pass
+
+    asyncio.run(
+        UploadBodyLimitMiddleware(downstream)(
+            {"type": "http", "method": "POST", "path": "/api/documents", "headers": []},
+            receive,
+            send,
+        )
+    )
+    assert b"".join(captured) == b"a" * 70000 + b"b" * 30000
+
+
+def test_concurrent_store_deduplication(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    from mantis.store import Store
+
+    store = Store(tmp_path / "concurrent.sqlite3")
+    barrier = Barrier(2)
+
+    def insert(_):
+        barrier.wait()
+        return store.add(
+            "workspace",
+            "manual.pdf",
+            "Pump",
+            1,
+            "same-digest",
+            "model",
+            b"pdf",
+            [{"page": 1, "text": "passage"}],
+            [[1.0, 0.0]],
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        identifiers = list(pool.map(insert, range(2)))
+    assert identifiers[0] == identifiers[1]
+    assert len(store.documents("workspace")) == 1
+    assert len(store.chunks("workspace")) == 1
+
+
+def test_concurrent_store_quota(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    from mantis.store import Store, WorkspaceFullError
+
+    store = Store(tmp_path / "quota.sqlite3")
+    barrier = Barrier(2)
+
+    def insert(number):
+        barrier.wait()
+        try:
+            return store.add(
+                "workspace",
+                "manual.pdf",
+                "Pump",
+                1,
+                str(number),
+                "model",
+                b"pdf",
+                [{"page": 1, "text": "passage"}],
+                [[1.0, 0.0]],
+                max_documents=1,
+            )
+        except WorkspaceFullError:
+            return "full"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(insert, range(2)))
+    assert results.count("full") == 1
+    assert len(store.documents("workspace")) == 1
+    assert len(store.chunks("workspace")) == 1
+
+
+def test_digest_lookup_only_returns_metadata(clients, provider, monkeypatch):
+    client, _, api = clients
+    identifier = upload(client).json()["document"]["id"]
+
+    def forbid_blob_read(*args):
+        raise AssertionError("deduplication must not load PDF content")
+
+    monkeypatch.setattr(api.state.store, "document", forbid_blob_read)
+    result = upload(client)
+    assert result.json()["duplicate"] is True
+    assert result.json()["document"]["id"] == identifier
+    assert "content" not in result.json()["document"]
+
+
+def test_empty_upload_body_does_not_hang(clients):
+    client, _, _ = clients
+    result = client.post(
+        "/api/documents",
+        content=b"",
+        headers={"Content-Type": "multipart/form-data; boundary=empty"},
+    )
+    assert result.status_code == 422

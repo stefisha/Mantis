@@ -27,13 +27,13 @@ Open http://127.0.0.1:8000. The frontend and API share one origin; no separate f
 4. Select an answer citation to inspect the exact passage or open the PDF at its source page.
 5. Manage individual manuals or clear the library. Deletion removes the stored document and indexed chunks transactionally.
 
-Each question is independent; the chat is a session transcript, not conversational model memory. Reloading clears the transcript. Manuals persist in SQLite and are scoped to an opaque, HTTP-only browser cookie. Clearing cookies loses access to that workspace. Each browser profile has a separate workspace.
+Each question is independent; the chat is a session transcript, not conversational model memory. Reloading clears the transcript. Manuals persist in SQLite and are scoped to an opaque, HTTP-only SameSite=Lax browser cookie. Clearing cookies loses access to that workspace. Each browser profile has a separate workspace.
 
 ## Architecture
 
 - FastAPI serves the same-origin frontend and a typed API.
 - `mantis/rag.py` extracts overlapping, page-local text chunks; adjacent lines stay together. Scanned PDFs need OCR before upload.
-- OpenAI embeds each chunk once, in batches. Embeddings and the original PDF are stored atomically in SQLite. Duplicate files within a workspace reuse the existing document.
+- OpenAI embeds each chunk once, in batches. Embeddings and the original PDF are stored atomically in SQLite. Duplicate files within a workspace reuse the existing document. Digest lookup reads metadata only; insertion serializes deduplication and quota checks in an immediate SQLite transaction.
 - Retrieval uses cosine similarity within the selected manual. The embedding model is saved per document, so configuration changes do not mix incompatible vector spaces.
 - A similarity threshold gates answer generation. The model uses a strict response schema and returns source IDs; the API validates IDs before returning citations. This validates source identity, not whether every claim is entailed by its passage. Tune the threshold against representative manuals and questions before operational use.
 - All document text is rendered as text, not HTML. No document text, questions, or provider responses are logged.
@@ -71,7 +71,7 @@ Tests exercise real PDF extraction and the API with a fake provider: upload vali
 
 ## Deployment boundary
 
-This is a maintainable local pilot, not a completed enterprise deployment. Bind to loopback by default. Browser workspace cookies isolate data but are not employee authentication. Before shared or internet deployment, add authenticated accounts, durable account-based workspace ownership, HTTPS, shared rate limiting, managed secrets, database backups/retention, audit controls, and a representative retrieval/answer evaluation set. The in-process request limiter is a local safeguard, not distributed abuse protection. PDF parsing is bounded by size/page/chunk limits but is not sandboxed; use an isolated worker for hostile uploads. SQLite deletion removes application records; it is not guaranteed forensic erasure from backups or storage media.
+This is a maintainable local pilot, not a completed enterprise deployment. Bind to loopback by default. Browser workspace cookies isolate data but are not employee authentication. Before shared or internet deployment, add authenticated accounts, durable account-based workspace ownership, HTTPS, shared rate limiting, managed secrets, database backups/retention, audit controls, and a representative retrieval/answer evaluation set. The in-process request limiter is a local safeguard, not distributed abuse protection. Upload bodies are bounded before multipart parsing, including streamed requests. PDF parsing is bounded by size/page/chunk limits but is not sandboxed; use an isolated worker for hostile uploads. SQLite deletion removes application records; it is not guaranteed forensic erasure from backups or storage media.
 
 Existing committed credentials were removed from the working tree and notebook outputs were cleared. Prior Git commits still contain those credentials. Rotate exposed keys and coordinate any history rewrite with repository collaborators; no history rewrite is performed by this change.
 

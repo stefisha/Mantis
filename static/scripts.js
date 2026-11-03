@@ -372,9 +372,11 @@ $("library-nav").addEventListener("click", () => view("library"));
 ["add-manual", "upload-sidebar", "library-upload", "drop-zone"].forEach((id) =>
   $(id).addEventListener("click", pickFile),
 );
-$("file-input").addEventListener("change", (event) =>
-  stageFile(event.target.files[0]),
-);
+$("file-input").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  stageFile(file);
+});
 $("upload-form").addEventListener("submit", upload);
 $("close-upload").addEventListener("click", () => $("upload-dialog").close());
 $("upload-dialog").addEventListener("cancel", (event) => {
