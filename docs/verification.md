@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **24 passing Python regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **24 passing Python regression tests** and **8 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -34,3 +34,9 @@ Run the checks using [the contributor guide](../CONTRIBUTING.md).
 ## Distribution check
 
 CI builds the Python wheel and runs `scripts/check_package.py` against its extracted contents. This verifies that both pages, shared frontend modules, fonts, original branding, team imagery, and the demo API work independently of an editable source checkout. Runtime secrets and database files are rejected if found in the archive.
+
+## Frontend regression coverage
+
+`npm test` uses Node's built-in test runner with minimal element/media-query doubles. It checks that starting a new demo request clears previous evidence and highlighting, that request failures and late responses cannot restore stale evidence, and that source reveal follows the product/workspace CSS breakpoints and the reduced-motion preference. These state/callback tests complement the manual browser layout checks; they do not emulate browser layout.
+
+The static traversal regression uses an encoded separator that survives HTTPX normalization and targets the existing `mantis/api.py` file outside the web root.

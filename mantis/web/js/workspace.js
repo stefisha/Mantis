@@ -1,3 +1,4 @@
+import { revealSource } from "./source-scroll.js";
 import { api } from "./api.js";
 ("use strict");
 const $ = (id) => document.getElementById(id);
@@ -257,8 +258,7 @@ function inspect(source) {
     detail.append(
       element("p", "", "Illustrative demo material. Not a service procedure."),
     );
-  if (window.innerWidth < 1100)
-    detail.scrollIntoView({ behavior: "smooth", block: "center" });
+  revealSource(detail, 1000);
 }
 function addMessage(role, text, result) {
   const node = element("article", "message " + role);

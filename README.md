@@ -87,7 +87,8 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 ## Quality and current limits
 
 - **24 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **CI** runs Python tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
+- **8 frontend regressions** cover failed/stale demo requests, responsive source-inspector reveal, and reduced-motion behavior.
+- **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.
 
@@ -120,6 +121,7 @@ pytest -q
 ruff check app.py mantis tests scripts
 ruff format --check app.py mantis tests scripts
 npm run check
+npm test
 npm run format:check
 ```
 

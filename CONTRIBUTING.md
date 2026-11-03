@@ -12,6 +12,7 @@ pytest -q
 ruff check app.py mantis tests scripts
 ruff format --check app.py mantis tests scripts
 npm run check
+npm test
 npm run format:check
 ```
 
