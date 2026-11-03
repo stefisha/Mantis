@@ -1,6 +1,6 @@
 # Configuration
 
-Copy `.env.example` to `.env` and configure the key locally. `.env`, runtime data, virtual environments, and notebook checkpoints are ignored by Git. Keep an existing `.env` when updating a checkout.
+For a new setup, copy `.env.example` to `.env` and configure the key locally. `.env` is loaded from the process working directory; relative data paths are also resolved there. Restart the server after environment changes. `.env`, runtime data, virtual environments, and notebook checkpoints are ignored by Git. Keep an existing `.env` when updating a checkout.
 
 | Setting                  | Default                  | Purpose                                                    |
 | ------------------------ | ------------------------ | ---------------------------------------------------------- |
