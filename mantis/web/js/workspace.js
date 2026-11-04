@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { archiveExchange } from "./chat-history.js";
 import { attachmentError, DEMO_PROMPTS } from "./examples.js";
 import { createConversation } from "./conversation.js";
 
@@ -6,6 +7,13 @@ const $ = (id) => document.getElementById(id);
 const chat = createConversation({ request: api });
 const state = {
   documents: [],
+  chats: [],
+  transcript: [],
+  chatId: "",
+  chatRevision: 0,
+  saving: false,
+  unsaved: false,
+  missingManual: false,
   selected: "",
   demo: false,
   configured: false,
@@ -16,6 +24,7 @@ const state = {
   chatGeneration: 0,
 };
 let toastTimer;
+let historyRequest = 0;
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -34,10 +43,12 @@ function scrollChat() {
   $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight;
 }
 function lock() {
-  $("send-button").disabled = chat.busy || state.uploading;
+  $("send-button").disabled = chat.busy || state.uploading || state.saving;
+  $("new-chat").disabled = state.uploading || state.saving;
+  $("retry-save").disabled = state.saving;
   $("attach-photo").disabled = state.uploading;
   document.querySelectorAll("[data-prompt]").forEach((button) => {
-    button.disabled = chat.busy || state.uploading;
+    button.disabled = chat.busy || state.uploading || state.saving;
   });
 }
 function clearPhoto() {
@@ -76,6 +87,12 @@ function updateMode() {
 }
 function resetChat() {
   chat.reset();
+  state.transcript = [];
+  state.chatId = "";
+  state.chatRevision = 0;
+  state.unsaved = false;
+  state.missingManual = false;
+  $("retry-save").hidden = true;
   state.chatGeneration += 1;
   $("messages").replaceChildren();
   $("welcome").hidden = false;
@@ -85,7 +102,11 @@ function resetChat() {
   updateMode();
 }
 function choose(id, demo = false) {
-  if (state.uploading) return;
+  if (state.uploading || state.saving) return;
+  if (state.unsaved) {
+    toast("Use Retry save before changing this conversation.");
+    return;
+  }
   state.selected = id;
   state.demo = demo;
   const url = new URL(location.href);
@@ -107,7 +128,11 @@ function addMessage(role, text, { result = null, photo = null } = {}) {
     header.prepend(mark);
   }
   const body = element("div", "message-body");
-  if (photo) {
+  if (photo?.omitted)
+    body.append(
+      element("p", "photo-history-note", "Photo was attached · file not saved"),
+    );
+  else if (photo) {
     const image = element("img", "message-photo");
     image.src = photo.url;
     image.alt = photo.sample
@@ -162,7 +187,7 @@ function addMessage(role, text, { result = null, photo = null } = {}) {
   return node;
 }
 function startExample(prompt = "spindle") {
-  if (state.uploading) return;
+  if (state.uploading || state.saving || state.unsaved) return;
   choose("", true);
   $("welcome").hidden = true;
   $("question").value = DEMO_PROMPTS[prompt];
@@ -170,7 +195,15 @@ function startExample(prompt = "spindle") {
 }
 async function ask(event, samplePhoto = false) {
   event?.preventDefault();
-  if (chat.busy || state.uploading) return;
+  if (chat.busy || state.uploading || state.saving) return;
+  if (state.missingManual)
+    return toast(
+      "This chat’s manual was removed. Select another manual to start a new conversation.",
+    );
+  if (state.transcript.length >= 100)
+    return toast(
+      "This chat has reached 50 exchanges. Start a new chat to continue.",
+    );
   const photo = samplePhoto
     ? { sample: true, url: "/static/assets/demo-alarm.svg" }
     : state.photo;
@@ -210,6 +243,8 @@ async function ask(event, samplePhoto = false) {
     if (generation !== state.chatGeneration || !result) return;
     pending.remove();
     addMessage("assistant", result.answer, { result });
+    state.transcript.push(...archiveExchange(question, result, photo));
+    await saveActiveChat();
   } catch (error) {
     if (generation !== state.chatGeneration) return;
     pending.remove();
@@ -367,6 +402,158 @@ async function upload(event) {
     $("file-input").value = "";
   }
 }
+async function saveActiveChat() {
+  if (!state.transcript.length || state.saving) return;
+  state.saving = true;
+  lock();
+  const generation = state.chatGeneration;
+  try {
+    const response = await api(
+      state.chatId ? `/chats/${encodeURIComponent(state.chatId)}` : "/chats",
+      {
+        method: state.chatId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          document_id: state.selected,
+          demo: state.demo,
+          revision: state.chatRevision,
+          messages: state.transcript,
+        }),
+      },
+    );
+    if (generation !== state.chatGeneration) return;
+    state.chatId = response.chat.id;
+    state.chatRevision = response.chat.revision;
+    state.unsaved = false;
+    $("retry-save").hidden = true;
+  } catch (error) {
+    if (generation === state.chatGeneration) {
+      state.unsaved = true;
+      $("retry-save").hidden = false;
+      toast(`Chat could not be saved: ${error.message} Use Retry save.`);
+    }
+  } finally {
+    state.saving = false;
+    lock();
+  }
+}
+function newChat() {
+  if (state.uploading || state.saving) return;
+  if (state.unsaved)
+    return toast("Use Retry save before starting another conversation.");
+  resetChat();
+  if ($("chats-dialog").open) $("chats-dialog").close();
+}
+async function openSavedChat(id) {
+  if (state.uploading || state.saving || state.unsaved)
+    return toast("Save the current conversation before switching chats.");
+  const current = ++historyRequest;
+  const generation = state.chatGeneration;
+  try {
+    const { chat: saved } = await api(`/chats/${encodeURIComponent(id)}`);
+    if (current !== historyRequest || generation !== state.chatGeneration)
+      return;
+    if (state.saving || state.uploading || state.unsaved)
+      return toast("Wait for this chat to finish saving before switching.");
+    choose(saved.document_id, Boolean(saved.demo));
+    state.chatId = saved.id;
+    state.chatRevision = saved.revision;
+    state.transcript = saved.messages;
+    chat.restore(saved.messages);
+    for (const message of saved.messages) {
+      const photo =
+        message.photo === "sample"
+          ? { sample: true, url: "/static/assets/demo-alarm.svg" }
+          : message.photo === "omitted"
+            ? { omitted: true }
+            : null;
+      addMessage(message.role, message.content, {
+        photo,
+        result:
+          message.role === "assistant"
+            ? { ...message, answer: message.content }
+            : null,
+      });
+    }
+    $("welcome").hidden = true;
+    state.missingManual =
+      !saved.demo &&
+      Boolean(saved.document_id) &&
+      !state.documents.some((doc) => doc.id === saved.document_id);
+    if (state.missingManual)
+      $("composer-note").textContent =
+        "This chat’s manual was removed. Choose another manual to start a new chat.";
+    $("chats-dialog").close();
+  } catch (error) {
+    toast(error.message);
+  }
+}
+async function loadChats() {
+  $("chat-list").replaceChildren(
+    element("p", "manual-empty", "Loading chats…"),
+  );
+  try {
+    state.chats = (await api("/chats")).chats;
+    const list = $("chat-list");
+    list.replaceChildren();
+    if (!state.chats.length)
+      list.append(
+        element(
+          "p",
+          "manual-empty",
+          "Your conversations will appear here after an answer.",
+        ),
+      );
+    for (const saved of state.chats) {
+      const row = element(
+        "div",
+        "manual-row" + (saved.id === state.chatId ? " selected" : ""),
+      );
+      const open = element("button", "manual-choose");
+      const doc = state.documents.find((item) => item.id === saved.document_id);
+      open.append(
+        element("strong", "", saved.title),
+        element(
+          "small",
+          "",
+          `${saved.demo ? "Example" : doc?.equipment || doc?.name || "Conversation"} · ${new Date(saved.updated).toLocaleDateString()}`,
+        ),
+      );
+      open.addEventListener("click", () => openSavedChat(saved.id));
+      const remove = element("button", "manual-delete", "Delete");
+      remove.setAttribute("aria-label", `Delete chat ${saved.title}`);
+      remove.addEventListener("click", async () => {
+        if (chat.busy || state.saving || state.uploading)
+          return toast("Wait for the current request to finish.");
+        if (!confirm(`Delete the saved chat “${saved.title}”?`)) return;
+        remove.disabled = true;
+        try {
+          await api(`/chats/${encodeURIComponent(saved.id)}`, {
+            method: "DELETE",
+          });
+          if (state.chatId === saved.id) resetChat();
+          await loadChats();
+        } catch (error) {
+          toast(error.message);
+          remove.disabled = false;
+        }
+      });
+      row.append(open, remove);
+      list.append(row);
+    }
+  } catch (error) {
+    $("chat-list").replaceChildren(element("p", "manual-empty", error.message));
+  }
+}
+["chats-rail", "chats-mobile"].forEach((id) =>
+  $(id).addEventListener("click", () => {
+    $("chats-dialog").showModal();
+    loadChats();
+  }),
+);
+$("close-chats").addEventListener("click", () => $("chats-dialog").close());
+$("drawer-new-chat").addEventListener("click", newChat);
+$("retry-save").addEventListener("click", saveActiveChat);
 $("question-form").addEventListener("submit", ask);
 $("question").addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
@@ -374,9 +561,7 @@ $("question").addEventListener("keydown", (event) => {
     ask();
   }
 });
-$("new-chat").addEventListener("click", () => {
-  if (!state.uploading) resetChat();
-});
+$("new-chat").addEventListener("click", newChat);
 $("demo-button").addEventListener("click", () =>
   state.demo ? choose("") : startExample(),
 );
@@ -390,8 +575,8 @@ document.querySelectorAll("[data-prompt]").forEach((button) =>
     ask(null, button.dataset.prompt === "alarm");
   }),
 );
-["manuals-rail", "manuals-button"].forEach((id) =>
-  $(id).addEventListener("click", () => $("manuals-dialog").showModal()),
+$("manuals-button").addEventListener("click", () =>
+  $("manuals-dialog").showModal(),
 );
 $("close-manuals").addEventListener("click", () => $("manuals-dialog").close());
 $("manual-search").addEventListener("input", renderDocuments);

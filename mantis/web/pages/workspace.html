@@ -22,12 +22,14 @@
         /></a>
         <span class="rail-rule"></span>
         <button
-          id="manuals-rail"
+          id="chats-rail"
           class="rail-button"
-          aria-label="Your manuals"
-          title="Your manuals"
+          aria-label="Your chats"
+          title="Your chats"
         >
-          ▤
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 11a8 8 0 0 1-8 8H5l-4 3V11a9 9 0 0 1 19 0Z" />
+          </svg>
         </button>
         <button
           id="help-button"
@@ -56,6 +58,16 @@
             </button>
           </div>
           <div class="toolbar-actions">
+            <button
+              type="button"
+              id="chats-mobile"
+              class="quiet-button mobile-chats"
+              aria-label="Your chats"
+            >
+              Chats</button
+            ><button type="button" id="retry-save" class="quiet-button" hidden>
+              Retry save
+            </button>
             <span id="connection-dot" hidden></span
             ><span id="connection-label" class="sr-only">Connecting…</span
             ><button class="quiet-button" id="new-chat" aria-label="New chat">
@@ -169,6 +181,31 @@
       hidden
     />
     <dialog
+      id="chats-dialog"
+      class="manuals-dialog chats-dialog"
+      aria-labelledby="chats-title"
+    >
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p>
+          <h2 id="chats-title">Your chats</h2>
+        </div>
+        <button id="close-chats" class="close-button" aria-label="Close chats">
+          ×
+        </button>
+      </div>
+      <button id="drawer-new-chat" class="primary-button">＋ New chat</button>
+      <p class="dialog-intro">
+        Previous conversations from this browser workspace.
+      </p>
+      <div id="chat-list" class="manual-list"></div>
+      <p class="storage-note">
+        Conversation text and sources are saved on this server. Photo files are
+        not saved. Deleting a manual does not delete its chats; delete those
+        here if needed.
+      </p>
+    </dialog>
+    <dialog
       id="manuals-dialog"
       class="manuals-dialog"
       aria-labelledby="manuals-title"
@@ -205,8 +242,8 @@
       <button id="help-drawer" class="quiet-button">About Mantis</button>
       <p class="storage-note">
         Manuals are stored on this server, scoped to your browser cookie.
-        Clearing cookies loses access. Conversations and photos aren’t saved by
-        Mantis.
+        Clearing cookies loses access. Conversation text is saved on this
+        server; photo files are not saved.
       </p>
     </dialog>
     <dialog id="upload-dialog" aria-labelledby="upload-title">
@@ -256,8 +293,9 @@
       <p>
         Recent text turns provide follow-up context. Photos are analyzed only
         when attached to the current message; attach them again if needed.
-        Photos and conversations aren’t saved by Mantis. AI service processing
-        policies still apply.
+        Conversation text and sources are saved in Your chats on this server.
+        Photo files are not saved; only the text observations remain. AI service
+        processing policies still apply.
       </p>
       <p>
         Try an example uses scripted replies and a clearly labeled sample alarm

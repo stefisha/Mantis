@@ -12,17 +12,27 @@ class UploadBodyLimitMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        if (
-            scope["type"] != "http"
-            or scope["method"] != "POST"
-            or scope["path"] not in ("/api/documents", "/api/questions")
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        path = scope["path"]
+        saved_chat = (scope["method"] == "POST" and path == "/api/chats") or (
+            scope["method"] == "PUT" and path.startswith("/api/chats/")
+        )
+        if not saved_chat and (
+            scope["method"] != "POST"
+            or path not in ("/api/documents", "/api/questions")
         ):
             return await self.app(scope, receive, send)
-        # Allow a small, bounded multipart envelope in addition to the file limit.
+        # Bound JSON history and photos as well as the multipart envelope.
         maximum = (
-            12 * 1024 * 1024
-            if scope["path"] == "/api/questions"
-            else int(os.getenv("MANTIS_MAX_UPLOAD_MB", "20")) * 1024 * 1024 + 64 * 1024
+            1024 * 1024
+            if saved_chat
+            else (
+                12 * 1024 * 1024
+                if path == "/api/questions"
+                else int(os.getenv("MANTIS_MAX_UPLOAD_MB", "20")) * 1024 * 1024
+                + 64 * 1024
+            )
         )
         headers = dict(scope["headers"])
         length = headers.get(b"content-length")

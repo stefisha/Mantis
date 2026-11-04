@@ -15,7 +15,7 @@ The engineer remains responsible for checking the actual manual and following ap
 - Text-based PDF upload, indexing, and a persistent manual library.
 - Questions scoped to one equipment manual, with a retrieval cutoff for weak matches.
 - Answers with validated source identifiers, page numbers, and inspectable excerpts.
-- Browser-scoped workspaces, duplicate detection, and document/index deletion.
+- Browser-scoped workspaces, duplicate detection, document/index deletion, and saved text conversations with restore/delete actions.
 - One chat for manual questions, photos, follow-ups, and inline sources. A key-free example runs in that same interface with scripted replies; personal example photos stay local.
 
 The application is a local pilot. Software regression tests cover its API and storage behavior; retrieval quality and answer correctness have not yet been evaluated on a representative set of industrial manuals.

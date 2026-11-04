@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **37 passing Python regression tests** and **13 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **42 passing Python regression tests** and **15 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -48,3 +48,7 @@ Chrome previously reused an old stylesheet/module against new HTML, causing a nu
 Landing examples now use the same scenario data as the app. Their native source disclosures expand inline; each question appends its own answer and source notes, while earlier exchanges remain available by scrolling. The landing page’s “Try an example” action scrolls to that section rather than opening the full app.
 
 Final layout checks verified that the landing demo keeps all three tested exchanges (six messages) in one 480px scrollable transcript. Suggested questions sit below it. The real app starts with an upload prompt; its upload action and helper text are inside the same bottom-bar border on desktop and mobile, with no horizontal overflow or application console error.
+
+Saved-chat tests cover persistence, workspace isolation, deletion, revision conflicts, immutable manual/mode, request/message/chat quotas, exclusion of personal photo bytes, and restoring bounded context while invalidating an older pending reply.
+
+Browser checks for Your chats verified automatic save, reopening after a fresh page load, continuing a restored conversation, separate manuals/chats drawers, and mobile access without horizontal overflow or application console errors.

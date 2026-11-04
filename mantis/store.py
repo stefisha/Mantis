@@ -4,6 +4,7 @@ import json
 import sqlite3
 import uuid
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -29,6 +30,11 @@ class Store:
                 page INTEGER NOT NULL, text TEXT NOT NULL, embedding TEXT NOT NULL);
               CREATE INDEX IF NOT EXISTS document_workspace ON documents(workspace);
               CREATE INDEX IF NOT EXISTS chunk_document ON chunks(document_id);
+              CREATE TABLE IF NOT EXISTS chats (
+                id TEXT PRIMARY KEY, workspace TEXT NOT NULL, title TEXT NOT NULL,
+                document_id TEXT NOT NULL, demo INTEGER NOT NULL, messages TEXT NOT NULL,
+                revision INTEGER NOT NULL DEFAULT 1, updated TEXT NOT NULL);
+              CREATE INDEX IF NOT EXISTS chat_workspace ON chats(workspace,updated);
             """)
 
     @contextmanager
@@ -136,4 +142,85 @@ class Store:
                 ).rowcount
             return db.execute(
                 "DELETE FROM documents WHERE workspace=?", (workspace,)
+            ).rowcount
+
+    def chats(self, workspace):
+        with self.connect() as db:
+            return [
+                dict(row)
+                for row in db.execute(
+                    "SELECT id,title,document_id,demo,revision,updated FROM chats WHERE workspace=? ORDER BY updated DESC,id",
+                    (workspace,),
+                )
+            ]
+
+    def chat(self, workspace, identifier):
+        with self.connect() as db:
+            row = db.execute(
+                "SELECT * FROM chats WHERE workspace=? AND id=?",
+                (workspace, identifier),
+            ).fetchone()
+            if not row:
+                return None
+            result = dict(row)
+            result.pop("workspace")
+            result["messages"] = json.loads(result["messages"])
+            return result
+
+    def save_chat(self, workspace, data, identifier=None):
+        title = data["messages"][0]["content"].strip().replace("\n", " ")[:80]
+        updated = datetime.now(timezone.utc).isoformat()
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            if identifier:
+                row = db.execute(
+                    "SELECT revision,document_id,demo FROM chats WHERE workspace=? AND id=?",
+                    (workspace, identifier),
+                ).fetchone()
+                if not row:
+                    raise LookupError("Chat not found.")
+                if (
+                    row["document_id"] != data["document_id"]
+                    or bool(row["demo"]) != data["demo"]
+                ):
+                    raise ValueError(
+                        "Changing manual or example mode requires a new chat."
+                    )
+                if row["revision"] != data["revision"]:
+                    raise ValueError(
+                        "This chat changed in another tab. Reopen it from Your chats before continuing."
+                    )
+                db.execute(
+                    "UPDATE chats SET messages=?, revision=revision+1, updated=? WHERE workspace=? AND id=?",
+                    (json.dumps(data["messages"]), updated, workspace, identifier),
+                )
+            else:
+                if (
+                    db.execute(
+                        "SELECT count(*) FROM chats WHERE workspace=?", (workspace,)
+                    ).fetchone()[0]
+                    >= 100
+                ):
+                    raise WorkspaceFullError(
+                        "This workspace is limited to 100 chats. Delete a chat before saving another."
+                    )
+                identifier = uuid.uuid4().hex
+                db.execute(
+                    "INSERT INTO chats(id,workspace,title,document_id,demo,messages,updated) VALUES(?,?,?,?,?,?,?)",
+                    (
+                        identifier,
+                        workspace,
+                        title,
+                        data["document_id"],
+                        int(data["demo"]),
+                        json.dumps(data["messages"]),
+                        updated,
+                    ),
+                )
+        return self.chat(workspace, identifier)
+
+    def delete_chat(self, workspace, identifier):
+        with self.connect() as db:
+            return db.execute(
+                "DELETE FROM chats WHERE workspace=? AND id=?", (workspace, identifier)
             ).rowcount

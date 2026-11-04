@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { archiveExchange } from "../../mantis/web/js/chat-history.js";
 import { createConversation } from "../../mantis/web/js/conversation.js";
 import {
   attachmentError,
@@ -191,4 +192,52 @@ test("restored sample questions have matching illustrative answers and sources",
   assert.match(vibration.answer, /Excessive vibration/);
   assert.doesNotMatch(vibration.answer, /overload message/);
   assert.equal(vibration.sources[0].page, 4);
+});
+
+test("saved exchanges omit personal photo bytes and unrecognized source fields", () => {
+  const messages = archiveExchange(
+    "Read this",
+    {
+      answer: "Visible alarm",
+      demo: false,
+      insufficient_evidence: true,
+      sources: [
+        {
+          document_id: "one",
+          name: "Manual",
+          page: 1,
+          text: "Evidence",
+          image: "private",
+        },
+      ],
+    },
+    { url: "data:image/png;base64,private" },
+  );
+  assert.equal(messages[0].photo, "omitted");
+  assert.equal(JSON.stringify(messages).includes("private"), false);
+  assert.equal(messages[1].sources[0].text, "Evidence");
+});
+
+test("reopening a chat restores bounded context and invalidates an old reply", async () => {
+  const pending = deferred();
+  const calls = [];
+  const chat = createConversation({
+    request: async (_, options) => {
+      calls.push(JSON.parse(options.body));
+      return calls.length === 1 ? pending.promise : answer("new");
+    },
+  });
+  const old = chat.send({ question: "old pending" });
+  const transcript = Array.from({ length: 12 }, (_, index) => ({
+    role: index % 2 ? "assistant" : "user",
+    content: `saved ${index}`,
+    sources: [],
+  }));
+  chat.restore(transcript);
+  pending.resolve(answer("old reply"));
+  assert.equal(await old, null);
+  assert.equal(chat.history.length, 8);
+  await chat.send({ question: "follow up", documentId: "restored-manual" });
+  assert.equal(calls[1].history[0].content, "saved 4");
+  assert.equal(calls[1].document_id, "restored-manual");
 });

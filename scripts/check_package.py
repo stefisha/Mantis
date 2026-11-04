@@ -40,6 +40,7 @@ def main():
                 "/static/js/api.js",
                 "/static/js/workspace.js",
                 "/static/js/conversation.js",
+                "/static/js/chat-history.js",
                 "/static/js/examples.js",
                 "/static/js/product-preview.js",
                 "/static/assets/mantis-mark.png",
@@ -56,7 +57,26 @@ def main():
             )
             assert result.status_code == 200
             assert result.json()["sources"]
-        print("Built wheel serves both pages, local assets, and the demo API.")
+            saved = client.post(
+                "/api/chats",
+                json={
+                    "demo": True,
+                    "messages": [
+                        {"role": "user", "content": "Example question"},
+                        {
+                            "role": "assistant",
+                            "content": "Example answer",
+                            "demo": True,
+                        },
+                    ],
+                },
+            )
+            assert saved.status_code == 201
+            identifier = saved.json()["chat"]["id"]
+            assert client.get(f"/api/chats/{identifier}").status_code == 200
+        print(
+            "Built wheel serves both pages, local assets, demo API, and chat history."
+        )
 
 
 if __name__ == "__main__":

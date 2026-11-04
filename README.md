@@ -26,11 +26,11 @@ It began as an exploratory PDF-chat prototype. It now includes a product landing
 
 ## One conversation for the job
 
-The product page opens with a full-screen black hero with a gradient headline, followed by a concise “How it works” section and interactive examples rendered in HTML/CSS. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** on the landing page scrolls to local examples; their source notes expand inline, and previous exchanges remain in the scrolling transcript. The full app also offers sample conversations in its own chat. Manuals live in a small drawer; there is no separate demo interface or library page.
+The product page opens with a full-screen black hero with a gradient headline, followed by a concise “How it works” section and interactive examples rendered in HTML/CSS. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** on the landing page scrolls to local examples; their source notes expand inline, and previous exchanges remain in the scrolling transcript. The full app also offers sample conversations in its own chat. The top manual picker lists uploaded documents. The left **Your chats** drawer lists saved conversations so you can reopen them; there is no separate library page.
 
 ![Mantis product page](docs/assets/product.jpg)
 
-![Mantis chat with a connected context, inline sources, and manual upload](docs/assets/workspace.jpg)
+![Mantis saved conversations in the Your chats drawer](docs/assets/workspace.jpg)
 
 ## What you can do
 
@@ -81,7 +81,7 @@ In live mode, attach one JPEG, PNG, or WebP photo (up to 8 MB and 20 megapixels)
 
 Live image handling follows the [official OpenAI image-input format](https://developers.openai.com/api/docs/guides/images-vision). The configured chat model must support image input and strict structured outputs. This request path has been tested with a fake provider; live image accuracy and provider compatibility still need validation with a valid key.
 
-Mantis does not persist photos or conversations. The browser sends the last four successful text exchanges as follow-up context; old image bytes are not resent. Reattach a photo when it needs to be examined again. The provider's data-processing policies apply to live requests.
+Mantis saves conversation text and cited passages in the workspace’s local server database. Photo files are not saved; reopened chats show a note where a personal photo was attached. The browser sends the last four successful text exchanges as follow-up context; old image bytes are not resent. Reattach a photo when it needs to be examined again. The provider's data-processing policies apply to live requests.
 
 ### 4. Verify the source
 
@@ -97,8 +97,8 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 
 ## Quality and current limits
 
-- **37 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **13 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
+- **42 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
+- **15 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
 - **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.
