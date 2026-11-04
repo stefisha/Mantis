@@ -43,6 +43,7 @@ def main():
                 "/static/js/product-demo.js",
                 "/static/js/source-scroll.js",
                 "/static/assets/mantis-mark.png",
+                "/static/assets/demo-alarm.svg",
                 "/static/assets/Inter-Variable.ttf",
                 "/static/assets/team-stefan.png",
             ):

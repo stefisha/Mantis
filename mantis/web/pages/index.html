@@ -133,110 +133,134 @@
           <div class="section-heading centered">
             <p class="eyebrow">MEET YOUR MAINTENANCE CO-PILOT</p>
             <h2>
-              From “where is it?”<br />to
-              <span class="orange-text">“here’s the source.”</span>
+              Show the problem.<br />
+              <span class="orange-text">Start the conversation.</span>
             </h2>
             <p>
-              A focused workspace for your equipment manuals, troubleshooting
-              questions, and the passages behind each answer.
+              An unfamiliar alarm. A question from the shop floor. See how a
+              maintenance conversation could feel, from the first symptom to the
+              next question.
             </p>
           </div>
-          <div class="demo-console">
-            <div class="console-topbar">
-              <span><span class="status-dot"></span> MANTIS WORKSPACE</span
-              ><span class="demo-label">ILLUSTRATIVE DEMO · NO AI CALLS</span>
-            </div>
-            <div class="console-grid">
-              <aside class="demo-library">
-                <div class="console-label">EQUIPMENT CONTEXT</div>
-                <div class="sample-equipment">
-                  <span class="card-icon">▥</span>
-                  <div>
-                    <strong>Training equipment</strong
-                    ><small>Sample documentation</small>
-                  </div>
+          <div class="conversation-demo" id="conversation-demo">
+            <aside class="conversation-rail" aria-label="Demo navigation">
+              <span class="logo-crop"
+                ><img src="/static/assets/mantis-mark.png" alt="Mantis"
+              /></span>
+              <span class="rail-divider"></span>
+              <span class="rail-active" aria-hidden="true">▤</span>
+              <span class="rail-caption">DEMO</span>
+            </aside>
+            <div class="conversation-main">
+              <div class="conversation-header">
+                <div>
+                  <span class="conversation-kicker">MAINTENANCE ASSISTANT</span>
+                  <h3>
+                    CNC troubleshooting
+                    <span class="session-dot" aria-hidden="true"></span>
+                  </h3>
                 </div>
-                <div class="console-label library-label">SELECT A QUESTION</div>
                 <button
-                  class="sample-question active"
-                  data-question="What should I check for excessive vibration?"
+                  type="button"
+                  id="demo-reset"
+                  class="conversation-reset"
                 >
-                  <span>▤</span>
-                  <div>
-                    Excessive vibration<small>Training manual · p. 4</small>
-                  </div>
-                  <span>↗</span></button
-                ><button
-                  class="sample-question"
-                  data-question="What should I check for overheating?"
-                >
-                  <span>▤</span>
-                  <div>Overheating<small>Training manual · p. 7</small></div>
-                  <span>↗</span></button
-                ><button
-                  class="sample-question"
-                  data-question="What should I record during preventive maintenance?"
-                >
-                  <span>▤</span>
-                  <div>
-                    Maintenance records<small>Training manual · p. 9</small>
-                  </div>
-                  <span>↗</span>
+                  ↺ <span>New chat</span>
                 </button>
-                <div class="demo-note">
-                  <span class="orange-text">ⓘ</span> These excerpts illustrate
-                  the workflow. They are not equipment service procedures.
-                </div>
-              </aside>
-              <div class="demo-chat">
-                <div class="demo-user">
-                  <span>YOUR QUESTION</span>
-                  <p id="demo-question">
-                    What should I check for excessive vibration?
-                  </p>
-                </div>
-                <div class="demo-answer">
-                  <div class="answer-heading">
-                    <span class="small-mark"
-                      ><img src="/static/assets/mantis-mark.png" alt="" /></span
-                    >MANTIS <span class="demo-tag">SOURCE EXCERPT</span>
-                  </div>
-                  <p id="demo-answer" aria-live="polite">
-                    Select a question to explore the sample manual.
-                  </p>
-                  <button id="demo-citation" class="source-link" hidden>
-                    Inspect source passage ↗
+              </div>
+              <div class="conversation-disclosure">
+                <span>INTERACTIVE PREVIEW</span> Scripted examples · no AI calls
+                · photos stay in your browser
+              </div>
+              <div
+                class="conversation-thread"
+                id="demo-thread"
+                role="log"
+                aria-label="Demo conversation"
+                aria-live="polite"
+                aria-relevant="additions"
+                tabindex="0"
+              ></div>
+              <div class="conversation-controls">
+                <div class="conversation-prompts" aria-label="Try an example">
+                  <button type="button" data-prompt="spindle">
+                    Spindle overload ↗
+                  </button>
+                  <button type="button" data-prompt="alarm">
+                    Try an alarm photo ↗
+                  </button>
+                  <button type="button" data-prompt="followup">
+                    What should I record? ↗
                   </button>
                 </div>
-                <a class="demo-input" href="/workspace#demo"
-                  ><span>Ask your own question in the workspace…</span
-                  ><span class="mini-send">↗</span></a
-                >
-              </div>
-              <aside class="demo-source" id="demo-source">
-                <div class="console-label">SOURCE INSPECTOR</div>
-                <div class="document-preview">
-                  <div class="paper-lines" aria-hidden="true">
-                    <span></span><span></span><span></span>
-                  </div>
-                  <p id="demo-source-text">
-                    Select a sample question to see its supporting passage.
-                  </p>
-                </div>
-                <div class="source-file">
-                  <span class="cyan-text">▧</span>
+                <div class="attachment-tray" id="demo-attachment" hidden>
+                  <img id="demo-preview" alt="Selected image preview" />
                   <div>
-                    <strong>Mantis training manual</strong
-                    ><small id="demo-page">Illustrative source</small>
+                    <strong id="demo-filename"></strong
+                    ><small>Local preview only · not analyzed</small>
                   </div>
+                  <button
+                    type="button"
+                    id="demo-remove"
+                    aria-label="Remove attachment"
+                  >
+                    ×
+                  </button>
                 </div>
-                <a
-                  href="/workspace#demo"
-                  class="button button-secondary full-width"
-                  >Explore the workspace ↗</a
+                <form class="conversation-composer" id="demo-form">
+                  <input
+                    type="file"
+                    id="demo-file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                  />
+                  <button
+                    type="button"
+                    id="demo-attach"
+                    class="attach-button"
+                    aria-label="Attach a photo (local preview only)"
+                    title="Attach a photo"
+                  >
+                    ＋
+                  </button>
+                  <label class="sr-only" for="demo-message"
+                    >Message Mantis</label
+                  >
+                  <input
+                    id="demo-message"
+                    type="text"
+                    placeholder="Describe the issue or attach a photo…"
+                    maxlength="600"
+                    autocomplete="off"
+                    aria-describedby="demo-feedback"
+                  />
+                  <button
+                    type="submit"
+                    id="demo-send"
+                    class="conversation-send"
+                    aria-label="Send message"
+                  >
+                    ↑
+                  </button>
+                </form>
+                <p
+                  id="demo-feedback"
+                  class="conversation-feedback"
+                  role="status"
                 >
-              </aside>
+                  Try an example, or type a question about a CNC alarm.
+                </p>
+              </div>
             </div>
+          </div>
+          <div class="conversation-footer">
+            <p>
+              A conversation that keeps the problem in focus. Examples
+              demonstrate the interaction, not equipment service procedures.
+            </p>
+            <a href="/workspace"
+              >Use your own manuals <span aria-hidden="true">↗</span></a
+            >
           </div>
         </div>
       </section>

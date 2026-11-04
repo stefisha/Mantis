@@ -16,7 +16,7 @@ The engineer remains responsible for checking the actual manual and following ap
 - Questions scoped to one equipment manual, with a retrieval cutoff for weak matches.
 - Answers with validated source identifiers, page numbers, and inspectable excerpts.
 - Browser-scoped workspaces, duplicate detection, and document/index deletion.
-- A labeled, offline demonstration that returns illustrative training excerpts.
+- A scripted, chat-first product demo with a prepared alarm-screen illustration and browser-local photo previews; a separate workspace demo returns illustrative training excerpts. Personal photos are not analyzed.
 
 The application is a local pilot. Software regression tests cover its API and storage behavior; retrieval quality and answer correctness have not yet been evaluated on a representative set of industrial manuals.
 

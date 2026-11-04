@@ -200,6 +200,9 @@ def test_origin_cookie_and_question_validation(clients):
         .headers["content-security-policy"]
         .startswith("default-src 'self'")
     )
+    policy = client.get("/").headers["content-security-policy"]
+    assert "img-src 'self' data: blob:;" in policy
+    assert "script-src 'self';" in policy
     fresh = TestClient(application.create_app())
     cookie = fresh.get("/api/health").headers["set-cookie"].lower()
     assert "httponly" in cookie and "samesite=lax" in cookie

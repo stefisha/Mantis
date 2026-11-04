@@ -12,3 +12,5 @@ Both fonts are distributed under the SIL Open Font License 1.1. The interface us
 The product and workspace interfaces use self-hosted Inter and JetBrains Mono, with licenses in `Inter-OFL.txt` and `JetBrainsMono-OFL.txt`. Source: https://github.com/google/fonts/tree/main/ofl/inter and https://github.com/google/fonts/tree/main/ofl/jetbrainsmono. Anton and Space Mono remain available for the original presentation/banner artwork.
 
 `team-petar.png`, `team-stefan.png`, and `team-zeljko.png` are the original portraits extracted from slide 5 of the owner-supplied project presentation. Names and role labels follow that slide. These assets are not fictional founder portraits.
+
+`demo-alarm.svg` is a code-drawn, illustrative alarm screen for the scripted product demo. Its example labels are inspired by the user-supplied original Mantis recording; it is not a manufacturer interface or live reading. Personal attachments are previewed locally, never uploaded or analyzed by this demo.

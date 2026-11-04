@@ -26,7 +26,7 @@ It began as an exploratory PDF-chat prototype. It now includes a product landing
 
 ## Product and workspace
 
-The product page introduces Mantis and includes a live, illustrative demo. The dedicated workspace handles your manuals, questions, and source inspection.
+The product page introduces Mantis and includes an interactive, scripted chat demo. The dedicated workspace handles your manuals, questions, and source inspection.
 
 ![Mantis product page](docs/assets/product.png)
 
@@ -40,7 +40,7 @@ The product page introduces Mantis and includes a live, illustrative demo. The d
 | **Ask the right source**   | Scope each question to one selected manual so equipment documentation stays separate.          |
 | **Inspect an answer**      | See cited excerpts, page numbers, and the original PDF at the referenced page.                 |
 | **Manage your workspace**  | Reuse duplicate files, delete individual manuals, or clear documents and their indexes.        |
-| **Try it without a key**   | Explore a clearly labeled training scenario with illustrative source excerpts and no AI calls. |
+| **Try it without a key**   | Try a scripted CNC conversation, a prepared alarm-screen example, and local photo previews with no AI calls. |
 
 The current app is a **local pilot**. It does not operate machines or certify maintenance work. Each question is independent; the visible conversation is a session transcript. Check answers against the cited manual and approved site procedures.
 
@@ -62,9 +62,13 @@ mantis --reload
 
 Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[workspace](http://127.0.0.1:8000/workspace)**. The product page is at `/`; the working assistant is at `/workspace`. FastAPI serves both the UI and API; there is no separate frontend server or build step. The setup command preserves an existing `.env`. See [running and updating](docs/running.md) for alternative entry points, environment/data locations, and troubleshooting.
 
+![Mantis scripted CNC chat demo](docs/assets/conversation-demo.jpg)
+
 ### 1. Explore the demo
 
-On the product page, choose **Try the interactive demo** to explore the embedded sample. In the workspace, choose **Explore demo**, then select a suggested question. You can also open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo) directly. Demo mode returns excerpts from an illustrative training manual. It makes no AI calls and does not describe real equipment service procedures.
+On the product page, choose **Try the interactive demo** for a chat inspired by the original Mantis prototype: ask about a spindle overload, try a prepared alarm-screen photo, or follow up with a maintenance handover question. You can attach a JPEG, PNG, or WebP image up to 8 MB for a local preview. Personal images stay in the browser and are **not analyzed**; replies are explicitly scripted. The alarm screen is an original illustration, not a real equipment reading.
+
+The dedicated workspace has a separate manual demo: choose **Explore demo**, then a suggested question, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). It returns illustrative training-manual excerpts. Both demos work without an API key, make no AI calls, and are not equipment service procedures.
 
 ### 2. Connect your manuals
 
@@ -87,7 +91,7 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 ## Quality and current limits
 
 - **24 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **8 frontend regressions** cover failed/stale demo requests, responsive source-inspector reveal, and reduced-motion behavior.
+- **12 frontend regressions** cover chat reset during pending replies, local photo handling, scripted scenario boundaries, attachment validation, and workspace source reveal/reduced motion.
 - **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.

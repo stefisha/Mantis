@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="380" viewBox="0 0 640 380" role="img" aria-labelledby="title desc">
+<title id="title">Illustrative CNC alarm screen</title><desc id="desc">Scripted sample listing PLC 121 Machine off, PLC 122 Door or safety device, and Battery voltage range.</desc>
+<rect width="640" height="380" rx="16" fill="#303742"/><rect x="18" y="18" width="604" height="344" rx="8" fill="#d6ddda"/>
+<path d="M26 26h588v44H26z" fill="#304d51"/><text x="44" y="55" font-family="monospace" font-size="18" fill="#fff">CNC / ALARM OVERVIEW</text>
+<g font-family="monospace" font-size="17" fill="#202b30"><text x="45" y="114">PLC 121   MACHINE OFF</text><text x="45" y="170">PLC 122   DOOR / SAFETY DEVICE</text><text x="45" y="226">ALARM     BATTERY VOLTAGE RANGE</text></g>
+<g stroke="#adb7b6"><path d="M40 135h560M40 191h560M40 247h560"/></g>
+<rect x="40" y="286" width="560" height="40" rx="4" fill="#bac4c1"/><text x="55" y="312" font-family="monospace" font-size="14" fill="#394b4c">ILLUSTRATIVE SCREEN / NOT LIVE MACHINE DATA</text></svg>

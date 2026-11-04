@@ -23,7 +23,7 @@ Tests generate their own PDFs and replace the AI provider. They require no live 
 
 ## Manual browser checks
 
-The desktop and mobile layouts, demo question/citation flow, question-field keyboard focus, and cancelling/reselecting the same PDF were checked in the local browser. The README screenshot shows the actual local application, not an AI-generated interface mockup.
+The desktop and mobile workspace layouts, demo question/citation flow, question-field keyboard focus, and cancelling/reselecting the same PDF were checked in the local browser. The product chat was separately checked at 1280px and 390px: prepared alarm photo, local PNG preview, explicit no-analysis reply, chat reset, keyboard submission, and no horizontal overflow. No browser console errors were observed. The README screenshot shows the actual local application, not an AI-generated interface mockup.
 
 ## What this does not establish
 
@@ -37,6 +37,4 @@ CI builds the Python wheel and runs `scripts/check_package.py` against its extra
 
 ## Frontend regression coverage
 
-`npm test` uses Node's built-in test runner with minimal element/media-query doubles. It checks that starting a new demo request clears previous evidence and highlighting, that request failures and late responses cannot restore stale evidence, and that source reveal follows the product/workspace CSS breakpoints and the reduced-motion preference. These state/callback tests complement the manual browser layout checks; they do not emulate browser layout.
-
-The static traversal regression uses an encoded separator that survives HTTPX normalization and targets the existing `mantis/api.py` file outside the web root.
+`npm test` uses Node's built-in test runner with minimal element/media-query doubles. It verifies reset invalidation for pending replies, separate responses for personal and sample images, object-URL cleanup, file-picker cancellation, attachment type/size limits, blank-message handling, and explicit scripted-response boundaries. Workspace source reveal is checked at its CSS breakpoint with reduced motion. These state/callback tests complement browser layout checks; they do not emulate browser layout.
