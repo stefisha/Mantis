@@ -639,3 +639,171 @@ def test_demo_api_rejects_photo_analysis(clients, provider):
     )
     assert result.status_code == 422
     assert provider[0].chats == []
+
+
+def test_page_and_assets_revalidate_including_not_modified(clients):
+    client, _, _ = clients
+    page = client.get("/workspace")
+    assert page.headers["cache-control"] == "no-cache"
+    path = re.search(
+        r'href="(/static/v/[0-9a-f]{16}/css/workspace.css)"', page.text
+    ).group(1)
+    asset = client.get(path)
+    assert asset.status_code == 200
+    assert asset.headers["cache-control"] == "no-cache"
+    unchanged = client.get(path, headers={"If-None-Match": asset.headers["etag"]})
+    assert unchanged.status_code == 304
+    assert unchanged.headers["cache-control"] == "no-cache"
+    assert client.get("/api/health").headers["cache-control"] == "no-store"
+
+
+def test_imported_module_changes_refresh_the_entire_asset_graph(tmp_path, monkeypatch):
+    import shutil
+    from urllib.parse import urljoin
+
+    web = tmp_path / "web"
+    shutil.copytree(application.WEB_DIR, web)
+    monkeypatch.setattr(application, "WEB_DIR", web)
+    client = TestClient(application.create_app(tmp_path / "runtime"))
+    first = client.get("/workspace").text
+    original = re.search(
+        r'src="(/static/v/[0-9a-f]{16}/js/workspace.js)"', first
+    ).group(1)
+    assert original in client.get("/workspace").text
+    module = web / "js/examples.js"
+    module.write_text(module.read_text() + "\n// Regression fixture: module changed.\n")
+    updated = re.search(
+        r'src="(/static/v/[0-9a-f]{16}/js/workspace.js)"', client.get("/workspace").text
+    ).group(1)
+    assert updated != original
+    # Relative imports stay in the new revision, rather than reusing a cached module URL.
+    imported = urljoin(updated, "./examples.js")
+    result = client.get(imported)
+    assert result.status_code == 200
+    assert "Regression fixture: module changed." in result.text
+    assert imported.split("/js/")[0] in client.get("/").text
+    assert client.get(urljoin(updated, "../css/workspace.css")).status_code == 200
+
+
+def test_versioned_assets_preserve_the_public_directory_boundary(clients):
+    client, _, _ = clients
+    assert client.get("/static/v/not-a-revision/css/workspace.css").status_code == 404
+    result = client.get("/static/v/0123456789abcdef/..%2F..%2Fapi.py")
+    assert result.status_code == 404
+
+
+def saved_chat_payload():
+    return {
+        "document_id": "manual-one",
+        "demo": False,
+        "messages": [
+            {
+                "role": "user",
+                "content": "What does this alarm mean?",
+                "photo": "omitted",
+            },
+            {
+                "role": "assistant",
+                "content": "Record the exact alarm and equipment model.",
+                "insufficient_evidence": True,
+                "sources": [],
+            },
+        ],
+    }
+
+
+def test_chat_history_persists_and_is_workspace_scoped(clients, tmp_path):
+    first, second, _ = clients
+    created = first.post("/api/chats", json=saved_chat_payload())
+    assert created.status_code == 201, created.text
+    saved = created.json()["chat"]
+    identifier = saved["id"]
+    assert saved["revision"] == 1
+    assert saved["title"] == "What does this alarm mean?"
+    assert first.get("/api/chats").json()["chats"][0]["id"] == identifier
+    assert second.get("/api/chats").json()["chats"] == []
+    assert second.get(f"/api/chats/{identifier}").status_code == 404
+    assert (
+        second.put(
+            f"/api/chats/{identifier}", json={**saved_chat_payload(), "revision": 1}
+        ).status_code
+        == 404
+    )
+    assert second.delete(f"/api/chats/{identifier}").status_code == 404
+    restarted = TestClient(application.create_app(tmp_path))
+    restarted.cookies.update(first.cookies)
+    response = restarted.get(f"/api/chats/{identifier}")
+    assert response.headers["cache-control"] == "no-store"
+    assert response.json()["chat"]["messages"][0]["photo"] == "omitted"
+
+
+def test_chat_revision_prevents_overwrite_and_context_changes(clients):
+    first, _, _ = clients
+    payload = saved_chat_payload()
+    identifier = first.post("/api/chats", json=payload).json()["chat"]["id"]
+    update = {**payload, "revision": 1, "messages": payload["messages"] * 2}
+    result = first.put(f"/api/chats/{identifier}", json=update)
+    assert result.status_code == 200
+    assert result.json()["chat"]["revision"] == 2
+    assert first.put(f"/api/chats/{identifier}", json=update).status_code == 409
+    assert (
+        first.put(
+            f"/api/chats/{identifier}",
+            json={**update, "revision": 2, "document_id": "different"},
+        ).status_code
+        == 409
+    )
+    assert len(first.get(f"/api/chats/{identifier}").json()["chat"]["messages"]) == 4
+    assert first.delete(f"/api/chats/{identifier}").status_code == 200
+    assert first.get(f"/api/chats/{identifier}").status_code == 404
+
+
+def test_chat_payload_rejects_photo_bytes_and_privileged_roles(clients):
+    client, _, _ = clients
+    payload = saved_chat_payload()
+    payload["messages"][0]["image"] = "data:image/png;base64,private-photo"
+    assert client.post("/api/chats", json=payload).status_code == 422
+    del payload["messages"][0]["image"]
+    payload["messages"][0]["role"] = "system"
+    assert client.post("/api/chats", json=payload).status_code == 422
+    assert client.get("/api/chats").json()["chats"] == []
+
+
+def test_chat_history_limits_before_storage_and_parsing(clients):
+    client, _, _ = clients
+    payload = saved_chat_payload()
+    assert (
+        client.post(
+            "/api/chats", json={**payload, "messages": payload["messages"] * 51}
+        ).status_code
+        == 422
+    )
+    for method, path in [("POST", "/api/chats"), ("PUT", "/api/chats/unused")]:
+        result = client.request(
+            method,
+            path,
+            content=b"{}",
+            headers={
+                "Content-Type": "application/json",
+                "Content-Length": str(1024 * 1024 + 1),
+            },
+        )
+        assert result.status_code == 413
+    assert client.get("/api/chats").json()["chats"] == []
+
+
+def test_chat_quota_allows_existing_chat_updates(clients):
+    client, _, api = clients
+    workspace = application.hashlib.sha256(
+        client.cookies.get("mantis_workspace").encode()
+    ).hexdigest()
+    payload = {**saved_chat_payload(), "revision": 0}
+    for _ in range(100):
+        saved = api.state.store.save_chat(workspace, payload)
+    result = client.post("/api/chats", json=saved_chat_payload())
+    assert result.status_code == 409
+    assert "100 chats" in result.json()["detail"]
+    result = client.put(
+        f"/api/chats/{saved['id']}", json={**saved_chat_payload(), "revision": 1}
+    )
+    assert result.status_code == 200

@@ -11,6 +11,7 @@
     <title>Mantis — Your maintenance co-pilot</title>
     <link rel="icon" href="/static/assets/mantis-mark.png" />
     <link rel="stylesheet" href="/static/css/product.css" />
+    <script type="module" src="/static/js/product-preview.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -50,7 +51,7 @@
           <div class="hero-actions">
             <a class="button" href="/workspace"
               >Open Mantis <span aria-hidden="true">↗</span></a
-            ><a class="button button-secondary" href="/workspace#demo"
+            ><a class="button button-secondary" href="#product"
               ><span aria-hidden="true">▷</span> Try an example</a
             >
           </div>
@@ -132,11 +133,7 @@
             question and the supporting information together.
           </p>
         </div>
-        <a
-          class="app-preview"
-          href="/workspace#demo"
-          aria-label="Try the example in the Mantis app"
-        >
+        <div class="app-preview" id="inline-preview">
           <div class="preview-rail" aria-hidden="true">
             <span class="logo-crop"
               ><img src="/static/assets/mantis-mark.png" alt="" /></span
@@ -148,44 +145,53 @@
               <span>MANTIS / MAINTENANCE ASSISTANT</span
               ><span class="preview-label">ILLUSTRATIVE EXAMPLE</span>
             </div>
-            <div class="preview-conversation">
-              <div class="preview-user">
-                <span class="preview-author">YOU</span>
-                <div class="preview-user-bubble">
-                  My CNC machine reports “spindle overload”.<br />What should I
-                  check first?
-                </div>
-              </div>
-              <div class="preview-assistant">
-                <span class="preview-author"
-                  ><span class="tiny-mark"
-                    ><img src="/static/assets/mantis-mark.png" alt="" /></span
-                  >MANTIS</span
-                >
-                <div class="preview-answer">
-                  Let’s put the symptoms into context.<br /><br />What’s the
-                  machine model and exact alarm message? Record when it appeared
-                  and any recent setup changes, then compare with the matching
-                  manual.<span class="preview-source"
-                    >▤ &nbsp; Illustrative handover notes · p. 1
-                    <span aria-hidden="true">⌄</span></span
-                  >
-                </div>
-              </div>
+            <div
+              class="preview-conversation"
+              id="preview-thread"
+              role="log"
+              aria-label="Example conversation"
+              aria-live="polite"
+              aria-relevant="additions"
+              tabindex="0"
+            ></div>
+            <div
+              class="preview-suggestions"
+              role="group"
+              aria-label="Suggested sample questions"
+            >
+              <button type="button" data-example="vibration">
+                <span aria-hidden="true">⌁</span
+                ><span>What should I check for excessive vibration?</span
+                ><span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" data-example="overheating">
+                <span aria-hidden="true">♨</span
+                ><span>What should I check for overheating?</span
+                ><span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" data-example="alarm">
+                <span aria-hidden="true">▧</span
+                ><span>Can you help me read this alarm photo?</span
+                ><span aria-hidden="true">↗</span>
+              </button>
+              <button type="button" data-example="followup">
+                <span aria-hidden="true">▤</span
+                ><span>What should I record for maintenance?</span
+                ><span aria-hidden="true">↗</span>
+              </button>
             </div>
             <div class="preview-bottom">
-              <span aria-hidden="true">＋</span
-              ><span>Describe the issue or attach a photo…</span
-              ><span class="preview-send" aria-hidden="true">↑</span>
+              <span>Scripted examples · no AI calls</span
+              ><a href="/workspace" class="preview-open">Open Mantis ↗</a>
             </div>
           </div>
-        </a>
+        </div>
         <div class="preview-caption">
           <p>
-            A preview of the flow. Try the example in the same app you’ll use
-            for your own equipment.
+            Explore these examples here. Click the source notes to expand them
+            on this page.
           </p>
-          <a href="/workspace#demo">Try it yourself ↗</a>
+          <a href="/workspace">Use your own manual ↗</a>
         </div>
         <p class="configuration-note">
           Examples work without a key. Live manual answers and photo analysis

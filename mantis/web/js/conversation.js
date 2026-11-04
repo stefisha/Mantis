@@ -19,6 +19,14 @@ export function createConversation({ request }) {
       turns = [];
       busy = false;
     },
+    restore(messages) {
+      generation += 1;
+      controller?.abort();
+      turns = messages
+        .slice(-8)
+        .map(({ role, content }) => ({ role, content }));
+      busy = false;
+    },
     async send({
       question,
       documentId = "",

@@ -1,12 +1,12 @@
 @font-face {
   font-family: Inter;
-  src: url("/static/assets/Inter-Variable.ttf") format("truetype");
+  src: url("../assets/Inter-Variable.ttf") format("truetype");
   font-weight: 100 900;
   font-display: swap;
 }
 @font-face {
   font-family: "JetBrains Mono";
-  src: url("/static/assets/JetBrainsMono-Variable.ttf") format("truetype");
+  src: url("../assets/JetBrainsMono-Variable.ttf") format("truetype");
   font-weight: 100 800;
   font-display: swap;
 }

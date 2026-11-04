@@ -16,14 +16,14 @@ from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, Response
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, Response
 from openai import OpenAI, OpenAIError
 from PIL import Image, UnidentifiedImageError
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from mantis.frontend import FrontendFiles, render_page
 from mantis.middleware import UploadBodyLimitMiddleware
 from mantis.rag import DEMO_CHUNKS, cosine, extract_chunks, terms
 from mantis.store import Store, WorkspaceFullError
@@ -94,6 +94,41 @@ class GeneratedAnswer(BaseModel):
     insufficient_evidence: bool
 
 
+class SavedSource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_id: str = Field(max_length=64)
+    name: str = Field(max_length=180)
+    page: int = Field(ge=1, le=300)
+    text: str = Field(max_length=4000)
+
+
+class SavedMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=10000)
+    sources: list[SavedSource] = Field(default_factory=list, max_length=5)
+    demo: bool = False
+    insufficient_evidence: bool = False
+    photo: Literal["", "sample", "omitted"] = ""
+
+
+class SavedChat(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_id: str = Field(default="", max_length=64)
+    demo: bool = False
+    revision: int = Field(default=0, ge=0)
+    messages: list[SavedMessage] = Field(min_length=2, max_length=100)
+
+    @model_validator(mode="after")
+    def completed_exchanges(self):
+        if len(self.messages) % 2 or any(
+            message.role != ("user" if index % 2 == 0 else "assistant")
+            for index, message in enumerate(self.messages)
+        ):
+            raise ValueError("Save completed user/assistant exchanges only.")
+        return self
+
+
 def create_app(data_dir=None):
     api = FastAPI(title="Mantis", version="0.2.0")
     store = Store(
@@ -142,6 +177,10 @@ def create_app(data_dir=None):
         )
         if request.url.path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-store"
+        elif request.url.path in ("/", "/workspace") or request.url.path.startswith(
+            "/static/"
+        ):
+            response.headers["Cache-Control"] = "no-cache"
         return response
 
     def provider():
@@ -153,14 +192,14 @@ def create_app(data_dir=None):
             )
         return OpenAI(api_key=key, timeout=45, max_retries=1)
 
-    def limit(request):
+    def limit(request, group=""):
         now = time.monotonic()
         # Bound memory for this single-process limiter.
         if len(buckets) > 5000:
             for key in list(buckets):
                 if not buckets[key] or buckets[key][-1] < now - 60:
                     del buckets[key]
-        bucket = buckets[request.state.workspace]
+        bucket = buckets[request.state.workspace + group]
         while bucket and bucket[0] < now - 60:
             bucket.popleft()
         if len(bucket) >= 20:
@@ -200,6 +239,44 @@ def create_app(data_dir=None):
             "configured": bool(os.getenv("OPENAI_API_KEY")),
             "version": "0.2.0",
         }
+
+    @api.get("/api/chats")
+    def chats(request: Request):
+        return {"chats": store.chats(request.state.workspace)}
+
+    @api.get("/api/chats/{identifier}")
+    def get_chat(identifier: str, request: Request):
+        result = store.chat(request.state.workspace, identifier)
+        if not result:
+            raise HTTPException(404, "Chat not found.")
+        return {"chat": result}
+
+    def persist_chat(body, request, identifier=None):
+        limit(request, ":history")
+        try:
+            return {
+                "chat": store.save_chat(
+                    request.state.workspace, body.model_dump(), identifier
+                )
+            }
+        except LookupError as exc:
+            raise HTTPException(404, str(exc))
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+
+    @api.post("/api/chats", status_code=201)
+    def create_chat(body: SavedChat, request: Request):
+        return persist_chat(body, request)
+
+    @api.put("/api/chats/{identifier}")
+    def update_chat(identifier: str, body: SavedChat, request: Request):
+        return persist_chat(body, request, identifier)
+
+    @api.delete("/api/chats/{identifier}")
+    def delete_chat(identifier: str, request: Request):
+        if not store.delete_chat(request.state.workspace, identifier):
+            raise HTTPException(404, "Chat not found.")
+        return {"deleted": True}
 
     @api.get("/api/documents")
     def documents(request: Request):
@@ -480,11 +557,11 @@ def create_app(data_dir=None):
 
     @api.get("/")
     def home():
-        return FileResponse(WEB_DIR / "pages/index.html")
+        return render_page(WEB_DIR, "index.html")
 
     @api.get("/workspace", include_in_schema=False)
     def workspace_page():
-        return FileResponse(WEB_DIR / "pages/workspace.html")
+        return render_page(WEB_DIR, "workspace.html")
 
-    api.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+    api.mount("/static", FrontendFiles(directory=WEB_DIR), name="static")
     return api

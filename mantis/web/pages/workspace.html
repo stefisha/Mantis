@@ -22,12 +22,14 @@
         /></a>
         <span class="rail-rule"></span>
         <button
-          id="manuals-rail"
+          id="chats-rail"
           class="rail-button"
-          aria-label="Your manuals"
-          title="Your manuals"
+          aria-label="Your chats"
+          title="Your chats"
         >
-          ▤
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 11a8 8 0 0 1-8 8H5l-4 3V11a9 9 0 0 1 19 0Z" />
+          </svg>
         </button>
         <button
           id="help-button"
@@ -40,47 +42,47 @@
         <span class="rail-wordmark">MANTIS</span>
       </aside>
       <main class="chat-app">
-        <header class="app-header">
-          <div class="app-title">
+        <header class="chat-toolbar">
+          <div class="toolbar-context">
             <a class="mobile-brand brand-icon" href="/" aria-label="Mantis home"
               ><img src="/static/assets/mantis-mark.png" alt=""
             /></a>
-            <div>
-              <p class="eyebrow">YOUR MAINTENANCE CO-PILOT</p>
-              <h1>
-                Mantis <span id="connection-dot" class="status-dot"></span>
-              </h1>
-            </div>
+            <h1 class="sr-only">Mantis maintenance assistant</h1>
+            <button
+              id="manuals-button"
+              class="context-button"
+              aria-haspopup="dialog"
+            >
+              ▤ <span id="selected-label">Your manuals</span>
+              <span aria-hidden="true">⌄</span>
+            </button>
           </div>
-          <div class="header-actions">
-            <button class="quiet-button" id="new-chat" aria-label="New chat">
+          <div class="toolbar-actions">
+            <button
+              type="button"
+              id="chats-mobile"
+              class="quiet-button mobile-chats"
+              aria-label="Your chats"
+            >
+              Chats</button
+            ><button type="button" id="retry-save" class="quiet-button" hidden>
+              Retry save
+            </button>
+            <span id="connection-dot" hidden></span
+            ><span id="connection-label" class="sr-only">Connecting…</span
+            ><button class="quiet-button" id="new-chat" aria-label="New chat">
               ↺ <span>New chat</span></button
-            ><button class="primary-button" id="upload-header">
-              ↑ <span>Upload manual</span>
+            ><button id="demo-button" class="quiet-button">
+              Try an example
             </button>
           </div>
         </header>
-        <div class="context-bar">
-          <button
-            id="manuals-button"
-            class="context-button"
-            aria-haspopup="dialog"
-          >
-            ▤ <span id="selected-label">Connect a manual</span>
-            <span aria-hidden="true">⌄</span>
-          </button>
-          <div class="context-actions">
-            <span class="connection-label" id="connection-label"
-              >Connecting…</span
-            ><button id="demo-button" class="example-button">
-              Try an example ↗
-            </button>
-          </div>
-        </div>
         <div id="mode-banner" class="mode-banner" hidden>
-          <span>EXAMPLE CONVERSATION</span>
-          <p>Scripted responses. Your photos stay local and aren’t analyzed.</p>
-          <button id="exit-demo">Use my own manual ↗</button>
+          <span>Example · scripted replies, no AI calls</span>
+          <p class="sr-only">
+            Personal photos stay local and aren’t analyzed in example mode.
+          </p>
+          <button id="exit-demo">Use my manual ↗</button>
         </div>
         <div
           class="chat-scroll"
@@ -92,22 +94,10 @@
             <span class="welcome-mark brand-icon"
               ><img src="/static/assets/mantis-mark.png" alt=""
             /></span>
-            <p class="eyebrow">THE NEXT STEP STARTS WITH CONTEXT</p>
-            <h2>What are we working on?</h2>
-            <p>
-              Describe the symptom. Show the alarm.<br />Bring the right manual
-              into the conversation.
-            </p>
-            <div class="welcome-actions">
-              <button id="upload-welcome" class="primary-button">
-                ↑ Upload your manual</button
-              ><button id="example-welcome" class="quiet-button">
-                ▷ Try an example
-              </button>
-            </div>
-            <p class="welcome-footnote">
-              PDF manuals · equipment photos · page-level sources
-            </p>
+            <h2 id="welcome-title">Upload a manual to start</h2>
+            <button type="button" id="upload-welcome" class="primary-button">
+              Upload manual
+            </button>
           </section>
           <div
             id="messages"
@@ -139,37 +129,47 @@
               ×
             </button>
           </div>
-          <form id="question-form" class="composer">
-            <button
-              type="button"
-              id="attach-photo"
-              class="attach-button"
-              aria-label="Attach a photo"
-              title="Attach a photo"
-            >
-              ＋
-            </button>
-            <label class="sr-only" for="question">Message Mantis</label
-            ><textarea
-              id="question"
-              rows="1"
-              maxlength="2000"
-              placeholder="Describe the issue or attach a photo…"
-              aria-describedby="composer-note"
-            ></textarea>
-            <button
-              id="send-button"
-              class="send-button"
-              type="submit"
-              aria-label="Send message"
-            >
-              ↑
-            </button>
-          </form>
-          <p class="composer-note" id="composer-note">
-            Add a PDF manual or a photo to get started. Live answers require an
-            API key.
-          </p>
+          <div class="composer-box">
+            <form id="question-form" class="composer">
+              <button
+                type="button"
+                id="attach-photo"
+                class="attach-button"
+                aria-label="Attach a photo"
+                title="Attach a photo"
+              >
+                ＋
+              </button>
+              <label class="sr-only" for="question">Message Mantis</label
+              ><textarea
+                id="question"
+                rows="1"
+                maxlength="2000"
+                placeholder="Ask about a maintenance issue or attach a photo…"
+                aria-describedby="composer-note"
+              ></textarea>
+              <button
+                id="send-button"
+                class="send-button"
+                type="submit"
+                aria-label="Send message"
+              >
+                Send
+              </button>
+            </form>
+            <div class="composer-meta">
+              <button
+                type="button"
+                id="upload-header"
+                class="manual-upload-action"
+              >
+                ↑ Upload manual
+              </button>
+              <p class="composer-note" id="composer-note">
+                Live answers require an API key.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -180,6 +180,31 @@
       accept="image/jpeg,image/png,image/webp"
       hidden
     />
+    <dialog
+      id="chats-dialog"
+      class="manuals-dialog chats-dialog"
+      aria-labelledby="chats-title"
+    >
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p>
+          <h2 id="chats-title">Your chats</h2>
+        </div>
+        <button id="close-chats" class="close-button" aria-label="Close chats">
+          ×
+        </button>
+      </div>
+      <button id="drawer-new-chat" class="primary-button">＋ New chat</button>
+      <p class="dialog-intro">
+        Previous conversations from this browser workspace.
+      </p>
+      <div id="chat-list" class="manual-list"></div>
+      <p class="storage-note">
+        Conversation text and sources are saved on this server. Photo files are
+        not saved. Deleting a manual does not delete its chats; delete those
+        here if needed.
+      </p>
+    </dialog>
     <dialog
       id="manuals-dialog"
       class="manuals-dialog"
@@ -217,8 +242,8 @@
       <button id="help-drawer" class="quiet-button">About Mantis</button>
       <p class="storage-note">
         Manuals are stored on this server, scoped to your browser cookie.
-        Clearing cookies loses access. Conversations and photos aren’t saved by
-        Mantis.
+        Clearing cookies loses access. Conversation text is saved on this
+        server; photo files are not saved.
       </p>
     </dialog>
     <dialog id="upload-dialog" aria-labelledby="upload-title">
@@ -268,8 +293,9 @@
       <p>
         Recent text turns provide follow-up context. Photos are analyzed only
         when attached to the current message; attach them again if needed.
-        Photos and conversations aren’t saved by Mantis. AI service processing
-        policies still apply.
+        Conversation text and sources are saved in Your chats on this server.
+        Photo files are not saved; only the text observations remain. AI service
+        processing policies still apply.
       </p>
       <p>
         Try an example uses scripted replies and a clearly labeled sample alarm

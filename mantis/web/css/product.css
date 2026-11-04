@@ -1,7 +1,7 @@
 @import url("./tokens.css");
 :root {
   color-scheme: dark;
-  --orange: #ff8a35;
+  --orange: #ff781a;
   --muted: #9aa2b0;
   --mono: "JetBrains Mono", monospace;
 }
@@ -10,7 +10,7 @@
 }
 body {
   margin: 0;
-  background: #101114;
+  background: #121316;
   color: #f8fafc;
   font:
     14px/1.7 Inter,
@@ -23,7 +23,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
-a:focus-visible {
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
   outline: 2px solid var(--orange);
   outline-offset: 5px;
 }
@@ -35,7 +37,7 @@ a:focus-visible {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #111215ed;
+  background: #121316ed;
   backdrop-filter: blur(18px);
   border-bottom: 1px solid #ffffff0c;
 }
@@ -119,19 +121,8 @@ html {
 .hero {
   position: relative;
   overflow: hidden;
-  background: #0c0d10;
+  background: #0d0e11;
   text-align: center;
-}
-.hero::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 65% 65% at 50% -10%,
-    #ff79242b,
-    transparent 75%
-  );
 }
 .hero-inner {
   position: relative;
@@ -155,7 +146,7 @@ html {
   justify-content: center;
   gap: 10px;
   padding: 7px 12px;
-  background: #252429;
+  background: #232125;
   border: 1px solid #ffffff08;
   border-radius: 24px;
   color: #efaa76;
@@ -178,8 +169,8 @@ html {
   margin: 0;
 }
 .hero h1 > span {
-  color: #ffba89;
-  background: linear-gradient(105deg, #ffddca 3%, #ffaf89 57%, #ffb754 100%);
+  color: #ffc19c;
+  background: linear-gradient(100deg, #f7dfd2, #ffb083 70%, #ffb95f);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -187,12 +178,12 @@ html {
 .hero-description {
   font-size: 17px;
   line-height: 1.9;
-  color: #d4d9e1;
+  color: #d8c7bf;
   margin: 24px auto 27px;
 }
 .hero-description > span {
   font-size: 13px;
-  color: #939dab;
+  color: #97999f;
 }
 .hero-actions {
   display: flex;
@@ -206,7 +197,7 @@ html {
   width: min(960px, 100%);
   padding: 22px 14px;
   margin-top: 40px;
-  background: #1b1c23;
+  background: #1b1c21;
   border: 1px solid #ffffff05;
   border-radius: 12px;
 }
@@ -243,7 +234,7 @@ html {
 .how-section {
   padding: 90px 0 70px;
   border-bottom: 1px solid #ffffff06;
-  background: #111216;
+  background: #121316;
 }
 .section-heading {
   text-align: center;
@@ -360,9 +351,6 @@ html {
   background: #090a0c;
   box-shadow: 0 24px 80px #0004;
 }
-.app-preview:hover {
-  border-color: #ff8a3550;
-}
 .preview-rail {
   display: flex;
   align-items: center;
@@ -413,10 +401,16 @@ html {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  height: 480px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #393c44 transparent;
 }
 .preview-user {
   align-self: flex-end;
   max-width: 78%;
+  flex-shrink: 0;
 }
 .preview-author {
   display: flex;
@@ -437,6 +431,7 @@ html {
 }
 .preview-assistant {
   max-width: 78%;
+  flex-shrink: 0;
 }
 .tiny-mark {
   position: relative;
@@ -460,45 +455,100 @@ html {
   font-size: 12px;
   line-height: 1.9;
 }
-.preview-source {
+.preview-answer > p,
+.preview-user-bubble > p {
+  margin: 0;
+  white-space: pre-line;
+}
+.preview-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 23px 18px;
+}
+.preview-suggestions button {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  text-align: left;
+  color: #b2bac5;
+  background: #17191d;
+  border: 1px solid #ffffff12;
+  padding: 12px;
+  min-height: 48px;
+  border-radius: 7px;
+}
+.preview-suggestions button > span:first-child {
+  color: #d0a27d;
+  font-size: 16px;
+}
+.preview-suggestions button > span:last-child {
+  margin-left: auto;
+  color: #939dab;
+}
+.preview-suggestions button:hover,
+.preview-suggestions button:focus-visible {
+  color: #f0c8a9;
+  border-color: #ff8a3540;
+  background: #201b17;
+}
+.preview-source {
   border-top: 1px solid #ffffff10;
   margin-top: 15px;
-  padding-top: 12px;
+  padding-top: 10px;
   color: #a6c6d9;
   font-size: 10px;
+}
+.preview-source summary {
+  cursor: pointer;
+  min-height: 28px;
+  padding: 3px 0;
+}
+.preview-source > p {
+  white-space: pre-line;
+  padding: 10px 0 0;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #b6c2ce;
+}
+.preview-source small {
+  display: block;
+  color: #8c98a6;
+  font-size: 9px;
+  margin-top: 10px;
+}
+.preview-photo {
+  display: block;
+  width: 250px;
+  max-width: 100%;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: #111;
+  margin-bottom: 12px;
 }
 .preview-bottom {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 15px;
   color: #8c96a6;
-  padding: 12px 20px;
-  margin: 0 24px 20px;
-  background: #202228;
-  border: 1px solid #ffffff12;
-  border-radius: 9px;
-  font-size: 11px;
+  padding: 13px 23px;
+  border-top: 1px solid #ffffff0b;
+  font-size: 10px;
 }
-.preview-bottom > span:first-child {
-  font-size: 24px;
-  color: #a6afbd;
+.preview-open {
+  color: #ffb783;
+  font-size: 10px;
+  white-space: nowrap;
 }
-.preview-send {
-  display: grid;
-  place-items: center;
-  width: 31px;
-  height: 31px;
-  font-size: 22px;
-  font-weight: 600;
-  background: var(--orange);
-  color: #211408;
-  border-radius: 5px;
-  margin-left: auto;
-  flex-shrink: 0;
+[hidden] {
+  display: none !important;
 }
 .preview-caption {
   display: flex;
@@ -652,6 +702,7 @@ html {
     font-size: 6px;
   }
   .preview-conversation {
+    height: 420px;
     padding: 21px 15px;
     gap: 18px;
   }
@@ -667,10 +718,17 @@ html {
   .preview-source {
     font-size: 9px;
   }
+  .preview-suggestions {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 14px 14px;
+    gap: 6px;
+  }
+  .preview-suggestions button {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
   .preview-bottom {
-    margin: 0 12px 14px;
-    padding: 8px 10px;
-    gap: 10px;
+    padding: 12px 14px;
     font-size: 9px;
   }
   .preview-caption {
