@@ -41,6 +41,7 @@ def main():
                 "/static/js/workspace.js",
                 "/static/js/conversation.js",
                 "/static/js/examples.js",
+                "/static/js/product-preview.js",
                 "/static/assets/mantis-mark.png",
                 "/static/assets/demo-alarm.svg",
                 "/static/assets/Inter-Variable.ttf",

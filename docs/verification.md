@@ -44,3 +44,5 @@ The new API regressions verify photo validation, extraction-to-retrieval flow, b
 The follow-up visual correction restores the black landing palette with gradient text only on “ON AUTOPILOT.” and removes dashboard-style chat headers. The chat follows the original recording with a narrow logo rail, compact replies, orange user messages, a bottom Send composer, a small manual-upload action, and restored sample inputs.
 
 Chrome previously reused an old stylesheet/module against new HTML, causing a null-element script error and an unstyled layout. After a normal reload, the corrected page rendered correctly with no application console error. CSS and JS modules now share a content-based revision URL; HTML/static responses require revalidation. Regressions cover imported-module changes, cache headers/304 responses, and versioned static-path traversal.
+
+Landing examples now use the same scenario data as the app. Their native source disclosures expand inline; switching questions closes/replaces the source, and the photo example hides unrelated source notes. The landing page’s “Try an example” action scrolls to that section rather than opening the full app.
