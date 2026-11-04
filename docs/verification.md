@@ -23,7 +23,7 @@ Tests generate their own PDFs and replace the AI provider. They require no live 
 
 ## Manual browser checks
 
-The unified app was checked at 1280px and 390px: scripted spindle and alarm-photo examples, inline source expansion, keyboard submission, and no horizontal overflow. An isolated temporary server with a fake provider exercised the actual PDF upload, active-manual selection, source-backed question and follow-up, original PDF link, live photo request path, and manual drawer. That check made no external AI calls. The compact landing page uses crisp HTML/CSS instead of a screenshot preview. README images show the actual local app/example.
+The unified app was checked at 1280px and 390px: scripted spindle and alarm-photo examples, inline source expansion, keyboard submission, and no horizontal overflow. An isolated temporary server with a fake provider exercised the actual PDF upload, active-manual selection, source-backed question and follow-up, original PDF link, live photo request path, and manual drawer. That check made no external AI calls. The landing page uses crisp HTML/CSS instead of a screenshot preview. Its gradient hero fills the first screen at 1440×900 and 390×844; the workflow and example follow below. Section anchors clear the sticky header and neither layout overflows horizontally. README images show the actual local app/example.
 
 ## What this does not establish
 

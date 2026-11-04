@@ -14,47 +14,115 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header container">
-      <a href="/" class="wordmark" aria-label="Mantis home"
-        ><span class="logo-crop"
-          ><img src="/static/assets/mantis-mark.png" alt="" /></span
-        >MANTIS</a
-      >
-      <a class="button button-small" href="/workspace"
-        >Open Mantis <span aria-hidden="true">↗</span></a
-      >
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="wordmark" aria-label="Mantis home"
+          ><span class="logo-crop"
+            ><img src="/static/assets/mantis-mark.png" alt="" /></span
+          >MANTIS</a
+        >
+        <nav class="header-nav" aria-label="Main navigation">
+          <a href="#how-it-works">How it works</a><a href="#product">Product</a
+          ><a
+            href="https://github.com/stefisha/Mantis/blob/main/docs/about.md"
+            target="_blank"
+            rel="noopener"
+            >About</a
+          >
+        </nav>
+        <a class="button button-small" href="/workspace"
+          >Open Mantis <span aria-hidden="true">↗</span></a
+        >
+      </div>
     </header>
     <main id="main">
-      <section class="hero container">
-        <p class="eyebrow">
-          <span class="status-dot"></span> YOUR MAINTENANCE CO-PILOT
-        </p>
-        <h1>MAINTENANCE<br /><span>ON AUTOPILOT.</span></h1>
-        <p class="hero-description">
-          Your manuals. Your equipment. Your next question.<br /><span
-            >Bring the problem into one conversation—with sources you can
-            inspect.</span
-          >
-        </p>
-        <div class="hero-actions">
-          <a class="button" href="/workspace"
-            >Open Mantis <span aria-hidden="true">↗</span></a
-          ><a class="button button-secondary" href="/workspace#demo"
-            ><span aria-hidden="true">▷</span> Try an example</a
-          >
+      <section class="hero">
+        <div class="container hero-inner">
+          <p class="eyebrow">
+            <span class="status-dot"></span> MANTIS / INDUSTRIAL KNOWLEDGE
+          </p>
+          <h1>MAINTENANCE<br /><span>ON AUTOPILOT.</span></h1>
+          <p class="hero-description">
+            The knowledge in your manuals. Ready when your machines need you.<br /><span
+              >Your maintenance co-pilot, with sources you can inspect.</span
+            >
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="/workspace"
+              >Open Mantis <span aria-hidden="true">↗</span></a
+            ><a class="button button-secondary" href="/workspace#demo"
+              ><span aria-hidden="true">▷</span> Try an example</a
+            >
+          </div>
+          <div class="proof-strip" aria-label="Mantis capabilities">
+            <div>
+              <strong>One manual</strong
+              ><span>THE RIGHT EQUIPMENT CONTEXT</span>
+            </div>
+            <div>
+              <strong>Page-level</strong><span>TRACEABLE SOURCE PASSAGES</span>
+            </div>
+            <div><strong>20 MB</strong><span>PDF UPLOAD LIMIT</span></div>
+            <div>
+              <strong>Example ready</strong
+              ><span>EXPLORE WITHOUT AN API KEY</span>
+            </div>
+          </div>
         </div>
-        <p class="hero-footnote">
-          PDF MANUALS <span>·</span> EQUIPMENT PHOTOS <span>·</span> PAGE-LEVEL
-          SOURCES
-        </p>
+      </section>
+      <section id="how-it-works" class="how-section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">BUILT AROUND THE WAY ENGINEERS WORK</p>
+            <h2>Your equipment.<br /><span>A clearer place to start.</span></h2>
+            <p>
+              From the first symptom to the source behind an answer—all in one
+              conversation.
+            </p>
+          </div>
+          <div class="workflow-grid">
+            <article class="workflow-card">
+              <span class="step-number">01 / CONNECT</span
+              ><span class="step-icon" aria-hidden="true">↥</span>
+              <h3>Bring the right manual.</h3>
+              <p>
+                Upload a PDF and choose the equipment context. Keep your manuals
+                in a simple drawer, ready for the next question.
+              </p>
+            </article>
+            <article class="workflow-card">
+              <span class="step-number">02 / ASK</span
+              ><span class="step-icon" aria-hidden="true">⌁</span>
+              <h3>Describe it. Show it.</h3>
+              <p>
+                Ask about a symptom or attach an alarm photo. Continue with a
+                follow-up while recent text keeps the conversation in context.
+              </p>
+            </article>
+            <article class="workflow-card">
+              <span class="step-number">03 / VERIFY</span
+              ><span class="step-icon" aria-hidden="true">▤</span>
+              <h3>Go back to the source.</h3>
+              <p>
+                Expand the passage beneath an answer and open the original PDF
+                page. Check the documentation before deciding what to do next.
+              </p>
+            </article>
+          </div>
+          <p class="workflow-footnote">
+            Photos add visible context. The matching manual supplies
+            equipment-specific procedures.
+          </p>
+        </div>
       </section>
       <section
+        id="product"
         class="product-section container"
         aria-labelledby="product-title"
       >
         <div class="product-heading">
           <div>
-            <p class="eyebrow">LESS SEARCHING. MORE CONTEXT.</p>
+            <p class="eyebrow">SEE MANTIS IN ACTION.</p>
             <h2 id="product-title">
               Show the problem.<br /><span>Start the conversation.</span>
             </h2>

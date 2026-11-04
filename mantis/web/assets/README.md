@@ -15,4 +15,4 @@ The product and workspace interfaces use self-hosted Inter and JetBrains Mono, w
 
 `demo-alarm.svg` is a code-drawn, illustrative alarm screen for the scripted example in the main chat. Its example labels are inspired by the user-supplied original Mantis recording; it is not a manufacturer interface or live reading. Personal example attachments are previewed locally, never uploaded or analyzed in example mode. Live-mode photos are sent to the configured provider.
 
-The compact landing page preview is rendered directly in HTML/CSS, with the original brand assets. It does not use a screenshot or duplicate the app’s interactive controls.
+The landing page preview is rendered directly in HTML/CSS, with the original brand assets. It does not use a screenshot or duplicate the app’s interactive controls.

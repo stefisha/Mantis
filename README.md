@@ -26,7 +26,7 @@ It began as an exploratory PDF-chat prototype. It now includes a product landing
 
 ## One conversation for the job
 
-The compact product page introduces Mantis with a crisp HTML/CSS preview; team credits and technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** opens that same interface with a sample conversation. Manuals live in a small drawer; there is no separate demo interface or library page.
+The product page opens with a full-screen gradient hero, followed by a concise “How it works” section and a crisp HTML/CSS preview. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** opens that same interface with a sample conversation. Manuals live in a small drawer; there is no separate demo interface or library page.
 
 ![Mantis product page](docs/assets/product.jpg)
 
