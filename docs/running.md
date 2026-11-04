@@ -65,3 +65,5 @@ After changing `.env`, restart the server. `--reload` watches source changes; do
 | Cookie does not persist over local HTTP   | Use `MANTIS_SECURE_COOKIE=false` locally. Secure cookies require HTTPS.                                                                                     |
 
 See [configuration](configuration.md), [API usage](api.md), and [deployment boundaries](deployment.md).
+
+If an older checkout renders with overlapping controls or default browser buttons, perform one hard reload (Chrome on macOS: Command–Shift–R). Current releases use revisioned CSS/script URLs and revalidation headers so normal reloads pick up interface changes together.

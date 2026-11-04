@@ -639,3 +639,54 @@ def test_demo_api_rejects_photo_analysis(clients, provider):
     )
     assert result.status_code == 422
     assert provider[0].chats == []
+
+
+def test_page_and_assets_revalidate_including_not_modified(clients):
+    client, _, _ = clients
+    page = client.get("/workspace")
+    assert page.headers["cache-control"] == "no-cache"
+    path = re.search(
+        r'href="(/static/v/[0-9a-f]{16}/css/workspace.css)"', page.text
+    ).group(1)
+    asset = client.get(path)
+    assert asset.status_code == 200
+    assert asset.headers["cache-control"] == "no-cache"
+    unchanged = client.get(path, headers={"If-None-Match": asset.headers["etag"]})
+    assert unchanged.status_code == 304
+    assert unchanged.headers["cache-control"] == "no-cache"
+    assert client.get("/api/health").headers["cache-control"] == "no-store"
+
+
+def test_imported_module_changes_refresh_the_entire_asset_graph(tmp_path, monkeypatch):
+    import shutil
+    from urllib.parse import urljoin
+
+    web = tmp_path / "web"
+    shutil.copytree(application.WEB_DIR, web)
+    monkeypatch.setattr(application, "WEB_DIR", web)
+    client = TestClient(application.create_app(tmp_path / "runtime"))
+    first = client.get("/workspace").text
+    original = re.search(
+        r'src="(/static/v/[0-9a-f]{16}/js/workspace.js)"', first
+    ).group(1)
+    assert original in client.get("/workspace").text
+    module = web / "js/examples.js"
+    module.write_text(module.read_text() + "\n// Regression fixture: module changed.\n")
+    updated = re.search(
+        r'src="(/static/v/[0-9a-f]{16}/js/workspace.js)"', client.get("/workspace").text
+    ).group(1)
+    assert updated != original
+    # Relative imports stay in the new revision, rather than reusing a cached module URL.
+    imported = urljoin(updated, "./examples.js")
+    result = client.get(imported)
+    assert result.status_code == 200
+    assert "Regression fixture: module changed." in result.text
+    assert imported.split("/js/")[0] in client.get("/").text
+    assert client.get(urljoin(updated, "../css/workspace.css")).status_code == 200
+
+
+def test_versioned_assets_preserve_the_public_directory_boundary(clients):
+    client, _, _ = clients
+    assert client.get("/static/v/not-a-revision/css/workspace.css").status_code == 404
+    result = client.get("/static/v/0123456789abcdef/..%2F..%2Fapi.py")
+    assert result.status_code == 404

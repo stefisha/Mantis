@@ -16,14 +16,14 @@ from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, Response
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, Response
 from openai import OpenAI, OpenAIError
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field, field_validator
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from mantis.frontend import FrontendFiles, render_page
 from mantis.middleware import UploadBodyLimitMiddleware
 from mantis.rag import DEMO_CHUNKS, cosine, extract_chunks, terms
 from mantis.store import Store, WorkspaceFullError
@@ -142,6 +142,10 @@ def create_app(data_dir=None):
         )
         if request.url.path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-store"
+        elif request.url.path in ("/", "/workspace") or request.url.path.startswith(
+            "/static/"
+        ):
+            response.headers["Cache-Control"] = "no-cache"
         return response
 
     def provider():
@@ -480,11 +484,11 @@ def create_app(data_dir=None):
 
     @api.get("/")
     def home():
-        return FileResponse(WEB_DIR / "pages/index.html")
+        return render_page(WEB_DIR, "index.html")
 
     @api.get("/workspace", include_in_schema=False)
     def workspace_page():
-        return FileResponse(WEB_DIR / "pages/workspace.html")
+        return render_page(WEB_DIR, "workspace.html")
 
-    api.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+    api.mount("/static", FrontendFiles(directory=WEB_DIR), name="static")
     return api

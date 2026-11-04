@@ -49,3 +49,7 @@ The current limits are 30 manuals per workspace and 2,000 chunks per manual. Bru
 The landing page follows the owner-supplied design reference while using the original presentation's logos, team portraits, names, and role labels. Mock telemetry, inventory records, invented performance figures, and unsupported certifications from the reference are not product data.
 
 The Python wheel includes HTML, CSS, scripts, fonts, logos, and portraits through setuptools package data. Runtime data and `.env` are resolved from the working directory, so an installed package can run outside the source checkout.
+
+## Frontend revisions
+
+`mantis/frontend.py` fingerprints the CSS/JavaScript bundle and places page assets under a shared `/static/v/{revision}/` URL prefix. Relative module and stylesheet imports inherit that prefix, so new HTML does not reuse an older cached module graph. HTML and static responses use `Cache-Control: no-cache` for revalidation; API responses remain `no-store`. The existing `/static/` paths remain supported, and Starlette still enforces the public-directory boundary. Font URLs are relative to the stylesheet.
