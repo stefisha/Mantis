@@ -82,26 +82,10 @@
             <span class="welcome-mark brand-icon"
               ><img src="/static/assets/mantis-mark.png" alt=""
             /></span>
-            <h2>What can I help with?</h2>
-            <p>Upload your manual, describe a symptom, or try a sample.</p>
-            <div class="sample-inputs" aria-label="Sample questions">
-              <button data-starter="vibration">
-                <span>⌁</span><strong>Excessive vibration</strong
-                ><small>Explore a symptom</small>
-              </button>
-              <button data-starter="overheating">
-                <span>♨</span><strong>Overheating</strong
-                ><small>Find the right context</small>
-              </button>
-              <button data-starter="alarm">
-                <span>▧</span><strong>Read an alarm photo</strong
-                ><small>Try the CNC example</small>
-              </button>
-              <button data-starter="followup">
-                <span>▤</span><strong>Maintenance records</strong
-                ><small>Prepare a handover</small>
-              </button>
-            </div>
+            <h2 id="welcome-title">Upload a manual to start</h2>
+            <button type="button" id="upload-welcome" class="primary-button">
+              Upload manual
+            </button>
           </section>
           <div
             id="messages"
@@ -133,44 +117,46 @@
               ×
             </button>
           </div>
-          <form id="question-form" class="composer">
-            <button
-              type="button"
-              id="attach-photo"
-              class="attach-button"
-              aria-label="Attach a photo"
-              title="Attach a photo"
-            >
-              ＋
-            </button>
-            <label class="sr-only" for="question">Message Mantis</label
-            ><textarea
-              id="question"
-              rows="1"
-              maxlength="2000"
-              placeholder="Ask about a maintenance issue or attach a photo…"
-              aria-describedby="composer-note"
-            ></textarea>
-            <button
-              id="send-button"
-              class="send-button"
-              type="submit"
-              aria-label="Send message"
-            >
-              Send
-            </button>
-          </form>
-          <div class="composer-meta">
-            <button
-              type="button"
-              id="upload-header"
-              class="manual-upload-action"
-            >
-              ↑ Upload your own manual
-            </button>
-            <p class="composer-note" id="composer-note">
-              Live answers require an API key.
-            </p>
+          <div class="composer-box">
+            <form id="question-form" class="composer">
+              <button
+                type="button"
+                id="attach-photo"
+                class="attach-button"
+                aria-label="Attach a photo"
+                title="Attach a photo"
+              >
+                ＋
+              </button>
+              <label class="sr-only" for="question">Message Mantis</label
+              ><textarea
+                id="question"
+                rows="1"
+                maxlength="2000"
+                placeholder="Ask about a maintenance issue or attach a photo…"
+                aria-describedby="composer-note"
+              ></textarea>
+              <button
+                id="send-button"
+                class="send-button"
+                type="submit"
+                aria-label="Send message"
+              >
+                Send
+              </button>
+            </form>
+            <div class="composer-meta">
+              <button
+                type="button"
+                id="upload-header"
+                class="manual-upload-action"
+              >
+                ↑ Upload manual
+              </button>
+              <p class="composer-note" id="composer-note">
+                Live answers require an API key.
+              </p>
+            </div>
           </div>
         </div>
       </main>

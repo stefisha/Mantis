@@ -45,4 +45,6 @@ The follow-up visual correction restores the black landing palette with gradient
 
 Chrome previously reused an old stylesheet/module against new HTML, causing a null-element script error and an unstyled layout. After a normal reload, the corrected page rendered correctly with no application console error. CSS and JS modules now share a content-based revision URL; HTML/static responses require revalidation. Regressions cover imported-module changes, cache headers/304 responses, and versioned static-path traversal.
 
-Landing examples now use the same scenario data as the app. Their native source disclosures expand inline; switching questions closes/replaces the source, and the photo example hides unrelated source notes. The landing page’s “Try an example” action scrolls to that section rather than opening the full app.
+Landing examples now use the same scenario data as the app. Their native source disclosures expand inline; each question appends its own answer and source notes, while earlier exchanges remain available by scrolling. The landing page’s “Try an example” action scrolls to that section rather than opening the full app.
+
+Final layout checks verified that the landing demo keeps all three tested exchanges (six messages) in one 480px scrollable transcript. Suggested questions sit below it. The real app starts with an upload prompt; its upload action and helper text are inside the same bottom-bar border on desktop and mobile, with no horizontal overflow or application console error.

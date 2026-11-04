@@ -26,7 +26,7 @@ It began as an exploratory PDF-chat prototype. It now includes a product landing
 
 ## One conversation for the job
 
-The product page opens with a full-screen black hero with a gradient headline, followed by a concise “How it works” section and interactive examples rendered in HTML/CSS. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** on the landing page scrolls to local examples; their source notes expand inline. The full app also offers sample conversations in its own chat. Manuals live in a small drawer; there is no separate demo interface or library page.
+The product page opens with a full-screen black hero with a gradient headline, followed by a concise “How it works” section and interactive examples rendered in HTML/CSS. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** on the landing page scrolls to local examples; their source notes expand inline, and previous exchanges remain in the scrolling transcript. The full app also offers sample conversations in its own chat. Manuals live in a small drawer; there is no separate demo interface or library page.
 
 ![Mantis product page](docs/assets/product.jpg)
 
@@ -65,7 +65,7 @@ Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[work
 
 ### 1. Try the same app with an example
 
-Use the landing page’s sample questions and expandable notes without leaving the page. To explore examples in the full chat, choose **Try an example** there, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). The chat starts with a scripted spindle-overload scenario. A new chat also offers sample inputs for vibration, overheating, alarm photos, and maintenance records. Try the illustrative alarm-screen attachment, ask a maintenance handover question, and expand the sample source. No API key or AI calls are involved. Personal photos attached in example mode stay in the browser and are not analyzed.
+Use the landing page’s sample questions and expandable notes without leaving the page. To explore examples in the full chat, choose **Try an example** there, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). The chat starts with a scripted spindle-overload scenario. The landing page offers suggested questions for vibration, overheating, alarm photos, and maintenance records in one scrollable chat; each click appends another exchange. Try the illustrative alarm-screen attachment, ask a maintenance handover question, and expand the sample source. No API key or AI calls are involved. Personal photos attached in example mode stay in the browser and are not analyzed.
 
 Choose **Exit example** or upload your own manual to leave example mode. Then attach a photo or ask about the selected manual to use the real backend. Switching modes resets the conversation, so example replies never enter a live request's history.
 

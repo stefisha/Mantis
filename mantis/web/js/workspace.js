@@ -54,6 +54,12 @@ function updateMode() {
     : doc
       ? doc.equipment || doc.name
       : "Your manuals";
+  $("welcome-title").textContent = state.demo
+    ? "Choose a sample question below"
+    : doc
+      ? "Ask about your manual"
+      : "Upload a manual to start";
+  $("upload-welcome").hidden = state.demo || Boolean(doc);
   $("mode-banner").hidden = !state.demo;
   $("suggestions").hidden = !state.demo;
   $("demo-button").textContent = state.demo ? "Exit example" : "Try an example";
@@ -61,12 +67,12 @@ function updateMode() {
     ? "Local preview only · not analyzed in this example"
     : "Sent to OpenAI when you send this message.";
   $("composer-note").textContent = state.demo
-    ? "Scripted example · no AI calls. Attachments stay in your browser."
+    ? "Scripted examples · no AI calls."
     : !state.configured
-      ? "AI service isn’t configured. Try the example, or set OPENAI_API_KEY on the server."
+      ? "Live answers need a configured AI service. Try an example."
       : doc
-        ? "Answers use this manual and recent text context. Verify citations. Photos are sent to OpenAI."
-        : "Attach a photo for observations, or upload a manual for source-backed answers. Sent to OpenAI.";
+        ? "Verify sources. Photos are sent to OpenAI."
+        : "Photos and questions are sent to OpenAI.";
 }
 function resetChat() {
   chat.reset();
@@ -76,6 +82,7 @@ function resetChat() {
   $("question").value = "";
   clearPhoto();
   lock();
+  updateMode();
 }
 function choose(id, demo = false) {
   if (state.uploading) return;
@@ -373,13 +380,6 @@ $("new-chat").addEventListener("click", () => {
 $("demo-button").addEventListener("click", () =>
   state.demo ? choose("") : startExample(),
 );
-document
-  .querySelectorAll("[data-starter]")
-  .forEach((button) =>
-    button.addEventListener("click", () =>
-      startExample(button.dataset.starter),
-    ),
-  );
 $("exit-demo").addEventListener("click", () => {
   choose("");
   $("manuals-dialog").showModal();
@@ -395,7 +395,7 @@ document.querySelectorAll("[data-prompt]").forEach((button) =>
 );
 $("close-manuals").addEventListener("click", () => $("manuals-dialog").close());
 $("manual-search").addEventListener("input", renderDocuments);
-["upload-header", "upload-drawer"].forEach((id) =>
+["upload-header", "upload-welcome", "upload-drawer"].forEach((id) =>
   $(id).addEventListener("click", pickManual),
 );
 $("file-input").addEventListener("change", (event) => {

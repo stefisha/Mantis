@@ -146,74 +146,39 @@
               ><span class="preview-label">ILLUSTRATIVE EXAMPLE</span>
             </div>
             <div
-              class="preview-examples"
+              class="preview-conversation"
+              id="preview-thread"
+              role="log"
+              aria-label="Example conversation"
+              aria-live="polite"
+              aria-relevant="additions"
+              tabindex="0"
+            ></div>
+            <div
+              class="preview-suggestions"
               role="group"
-              aria-label="Sample questions"
+              aria-label="Suggested sample questions"
             >
-              <button type="button" data-example="spindle" aria-pressed="true">
-                Spindle overload
+              <button type="button" data-example="vibration">
+                <span aria-hidden="true">⌁</span
+                ><span>What should I check for excessive vibration?</span
+                ><span aria-hidden="true">↗</span>
               </button>
-              <button
-                type="button"
-                data-example="overheating"
-                aria-pressed="false"
-              >
-                Overheating
+              <button type="button" data-example="overheating">
+                <span aria-hidden="true">♨</span
+                ><span>What should I check for overheating?</span
+                ><span aria-hidden="true">↗</span>
               </button>
-              <button type="button" data-example="alarm" aria-pressed="false">
-                Alarm photo
+              <button type="button" data-example="alarm">
+                <span aria-hidden="true">▧</span
+                ><span>Can you help me read this alarm photo?</span
+                ><span aria-hidden="true">↗</span>
               </button>
-              <button
-                type="button"
-                data-example="followup"
-                aria-pressed="false"
-              >
-                Maintenance records
+              <button type="button" data-example="followup">
+                <span aria-hidden="true">▤</span
+                ><span>What should I record for maintenance?</span
+                ><span aria-hidden="true">↗</span>
               </button>
-            </div>
-            <div class="preview-conversation">
-              <div class="preview-user">
-                <span class="preview-author">YOU</span>
-                <div class="preview-user-bubble">
-                  <img
-                    id="preview-photo"
-                    class="preview-photo"
-                    alt="Illustrative CNC alarm screen"
-                    hidden
-                  />
-                  <p id="preview-question">
-                    My CNC machine reports “spindle overload” and sounds louder
-                    than usual. What should I check first?
-                  </p>
-                </div>
-              </div>
-              <div class="preview-assistant">
-                <span class="preview-author"
-                  ><span class="tiny-mark"
-                    ><img src="/static/assets/mantis-mark.png" alt="" /></span
-                  >MANTIS</span
-                >
-                <div class="preview-answer">
-                  <p id="preview-answer" aria-live="polite">
-                    Select an example above to explore a maintenance
-                    conversation.
-                  </p>
-                  <details class="preview-source" id="preview-source">
-                    <summary id="preview-source-title">
-                      Illustrative handover notes · p. 1
-                    </summary>
-                    <p id="preview-source-text">
-                      Record the equipment model, exact alarm, operating
-                      conditions, and recent maintenance changes. Compare
-                      observations with the correct manufacturer documentation.
-                    </p>
-                    <small
-                      >Illustrative example · not an equipment service
-                      procedure.</small
-                    >
-                  </details>
-                </div>
-              </div>
             </div>
             <div class="preview-bottom">
               <span>Scripted examples · no AI calls</span

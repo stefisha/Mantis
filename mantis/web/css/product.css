@@ -401,10 +401,16 @@ html {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  height: 480px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #393c44 transparent;
 }
 .preview-user {
   align-self: flex-end;
   max-width: 78%;
+  flex-shrink: 0;
 }
 .preview-author {
   display: flex;
@@ -425,6 +431,7 @@ html {
 }
 .preview-assistant {
   max-width: 78%;
+  flex-shrink: 0;
 }
 .tiny-mark {
   position: relative;
@@ -453,27 +460,41 @@ html {
   margin: 0;
   white-space: pre-line;
 }
-.preview-examples {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-  padding: 16px 23px 0;
+.preview-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 23px 18px;
 }
-.preview-examples button {
+.preview-suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   font: inherit;
   font-size: 10px;
   cursor: pointer;
-  color: #aab2bf;
-  background: #191b20;
-  border: 1px solid #ffffff15;
-  padding: 7px 11px;
-  min-height: 32px;
-  border-radius: 6px;
+  text-align: left;
+  color: #b2bac5;
+  background: #17191d;
+  border: 1px solid #ffffff12;
+  padding: 12px;
+  min-height: 48px;
+  border-radius: 7px;
 }
-.preview-examples button[aria-pressed="true"] {
-  color: #ffbc8d;
-  border-color: #ff8a3555;
-  background: #ff8a3510;
+.preview-suggestions button > span:first-child {
+  color: #d0a27d;
+  font-size: 16px;
+}
+.preview-suggestions button > span:last-child {
+  margin-left: auto;
+  color: #939dab;
+}
+.preview-suggestions button:hover,
+.preview-suggestions button:focus-visible {
+  color: #f0c8a9;
+  border-color: #ff8a3540;
+  background: #201b17;
 }
 .preview-source {
   border-top: 1px solid #ffffff10;
@@ -681,6 +702,7 @@ html {
     font-size: 6px;
   }
   .preview-conversation {
+    height: 420px;
     padding: 21px 15px;
     gap: 18px;
   }
@@ -696,11 +718,12 @@ html {
   .preview-source {
     font-size: 9px;
   }
-  .preview-examples {
-    padding: 12px 14px 0;
+  .preview-suggestions {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 14px 14px;
     gap: 6px;
   }
-  .preview-examples button {
+  .preview-suggestions button {
     font-size: 9px;
     padding: 6px 8px;
   }
