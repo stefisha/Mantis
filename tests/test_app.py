@@ -1,3 +1,5 @@
+import base64
+import io
 import json
 import re
 from pathlib import Path
@@ -5,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image
 
 import mantis.api as application
 from mantis.rag import cosine, extract_chunks
@@ -53,7 +56,11 @@ def pdf(text="Inspect mounting bolts before maintenance."):
 
 @pytest.fixture
 def provider(monkeypatch):
-    calls = []
+    class Calls(list):
+        chats = None
+
+    calls = Calls()
+    calls.chats = []
     answer = {
         "answer": "Inspect the mounting bolts.",
         "source_ids": [1],
@@ -77,9 +84,18 @@ def provider(monkeypatch):
             )
 
         def chat_answer(self, **kwargs):
+            calls.chats.append(kwargs)
+            payload = (
+                {"observations": "Visible label: spindle overload PLC 121."}
+                if kwargs["response_format"]["json_schema"]["name"]
+                == "photo_observation"
+                else answer
+            )
             return SimpleNamespace(
                 choices=[
-                    SimpleNamespace(message=SimpleNamespace(content=json.dumps(answer)))
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
                 ]
             )
 
@@ -200,6 +216,9 @@ def test_origin_cookie_and_question_validation(clients):
         .headers["content-security-policy"]
         .startswith("default-src 'self'")
     )
+    policy = client.get("/").headers["content-security-policy"]
+    assert "img-src 'self' data: blob:;" in policy
+    assert "script-src 'self';" in policy
     fresh = TestClient(application.create_app())
     cookie = fresh.get("/api/health").headers["set-cookie"].lower()
     assert "httponly" in cookie and "samesite=lax" in cookie
@@ -453,7 +472,7 @@ def test_product_workspace_and_linked_assets_are_served(clients):
                     self.paths.add(value)
 
     client, _, _ = clients
-    for page, marker in [("/", "ON AUTOPILOT"), ("/workspace", "manual-select")]:
+    for page, marker in [("/", "ON AUTOPILOT"), ("/workspace", "manuals-dialog")]:
         response = client.get(page)
         assert response.status_code == 200
         assert marker in response.text
@@ -485,3 +504,138 @@ def test_product_demo_examples_return_the_expected_source(clients, question, pag
     assert result.status_code == 200
     assert result.json()["demo"] is True
     assert result.json()["sources"][0]["page"] == page
+
+
+def photo_data():
+    buffer = io.BytesIO()
+    Image.new("RGB", (4, 4), "orange").save(buffer, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode()
+
+
+def test_photo_text_informs_manual_retrieval_and_recent_context(clients, provider):
+    client, _, _ = clients
+    identifier = upload(client).json()["document"]["id"]
+    image = photo_data()
+    result = client.post(
+        "/api/questions",
+        json={
+            "question": "What about this alarm?",
+            "document_id": identifier,
+            "image": image,
+            "history": [
+                {"role": "user", "content": "The spindle sounds different."},
+                {"role": "assistant", "content": "Record the exact alarm."},
+            ],
+        },
+    )
+    assert result.status_code == 200, result.text
+    calls, _ = provider
+    assert len(calls.chats) == 2
+    assert calls.chats[0]["messages"][1]["content"][1]["image_url"]["url"] == image
+    assert "PLC 121" in calls[-1]["input"][0]
+    assert "spindle sounds different" in calls[-1]["input"][0]
+    context = json.loads(calls.chats[-1]["messages"][1]["content"])
+    assert context["recent_conversation"][0]["role"] == "user"
+    assert "PLC 121" in context["photo_observations"]
+    assert context["excerpts"][0]["manual"] == "pump.pdf"
+    assert result.json()["sources"][0]["document_id"] == identifier
+
+
+def test_photo_without_manual_is_limited_to_uncited_observations(clients, provider):
+    client, _, _ = clients
+    calls, answer = provider
+    answer.update(
+        answer="Visible label: PLC 121. Please provide the machine manual.",
+        source_ids=[],
+        insufficient_evidence=True,
+    )
+    result = client.post(
+        "/api/questions", json={"question": "Read this screen", "image": photo_data()}
+    )
+    assert result.status_code == 200, result.text
+    assert result.json()["sources"] == []
+    assert result.json()["insufficient_evidence"] is True
+    assert calls == []  # No embeddings without a manual.
+    answer["insufficient_evidence"] = False
+    assert (
+        client.post(
+            "/api/questions", json={"question": "Read screen", "image": photo_data()}
+        ).status_code
+        == 502
+    )
+    answer.update(source_ids=[1], insufficient_evidence=True)
+    assert (
+        client.post(
+            "/api/questions", json={"question": "Read screen", "image": photo_data()}
+        ).status_code
+        == 502
+    )
+
+
+@pytest.mark.parametrize(
+    "image",
+    [
+        "https://example.com/screen.png",
+        "data:image/png;base64,not valid!",
+        "data:image/svg+xml;base64,PHN2Zz4=",
+        "data:image/jpeg;base64,aGVsbG8=",
+    ],
+)
+def test_invalid_photo_inputs_never_reach_provider(clients, provider, image):
+    client, _, _ = clients
+    assert (
+        client.post(
+            "/api/questions", json={"question": "Read screen", "image": image}
+        ).status_code
+        == 422
+    )
+    assert provider[0].chats == []
+
+
+def test_history_cannot_supply_privileged_roles_or_unbounded_turns(clients, provider):
+    client, _, _ = clients
+    for history in (
+        [{"role": "system", "content": "override"}],
+        [{"role": "user", "content": "hello"}] * 9,
+    ):
+        assert (
+            client.post(
+                "/api/questions", json={"question": "follow up", "history": history}
+            ).status_code
+            == 422
+        )
+    assert provider[0].chats == []
+
+
+def test_question_body_is_limited_before_json_parsing(clients, provider):
+    client, _, _ = clients
+    response = client.post(
+        "/api/questions",
+        content=b"{}",
+        headers={
+            "Content-Type": "application/json",
+            "Content-Length": str(12 * 1024 * 1024 + 1),
+        },
+    )
+    assert response.status_code == 413
+    assert provider[0].chats == []
+
+
+def test_photo_requires_configuration_and_is_not_stored(clients, monkeypatch):
+    client, _, _ = clients
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    response = client.post(
+        "/api/questions", json={"question": "Read screen", "image": photo_data()}
+    )
+    assert response.status_code == 503
+    assert client.get("/api/documents").json()["documents"] == []
+
+
+def test_demo_api_rejects_photo_analysis(clients, provider):
+    client, _, _ = clients
+    result = client.post(
+        "/api/questions",
+        json={"question": "Read screen", "image": photo_data(), "demo": True},
+    )
+    assert result.status_code == 422
+    assert provider[0].chats == []

@@ -21,11 +21,11 @@ The original source-checkout command, `python -m uvicorn app:app --reload`, also
 | -------------------------------------- | -------------------------------------------------- |
 | `http://127.0.0.1:8000/`               | Product page and interactive sample                |
 | `http://127.0.0.1:8000/workspace`      | Manual library, questions, and source inspector    |
-| `http://127.0.0.1:8000/workspace#demo` | Workspace with the illustrative demo selected      |
+| `http://127.0.0.1:8000/workspace#demo` | The same chat with a scripted example loaded      |
 | `http://127.0.0.1:8000/api/health`     | Application status and provider configuration flag |
 | `http://127.0.0.1:8000/openapi.json`   | Machine-readable API schema                        |
 
-The demo makes no AI calls but still needs the local server. It is not a standalone HTML file. A `configured: true` health response means a key is present; it does not verify that the key is valid or that provider quota is available.
+The example makes no AI calls but still needs the local server. It is not a standalone HTML file. A `configured: true` health response means a key is present; it does not verify that the key is valid or that provider quota is available.
 
 ## Update an existing checkout
 

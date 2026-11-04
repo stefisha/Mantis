@@ -15,11 +15,15 @@ class UploadBodyLimitMiddleware:
         if (
             scope["type"] != "http"
             or scope["method"] != "POST"
-            or scope["path"] != "/api/documents"
+            or scope["path"] not in ("/api/documents", "/api/questions")
         ):
             return await self.app(scope, receive, send)
         # Allow a small, bounded multipart envelope in addition to the file limit.
-        maximum = int(os.getenv("MANTIS_MAX_UPLOAD_MB", "20")) * 1024 * 1024 + 64 * 1024
+        maximum = (
+            12 * 1024 * 1024
+            if scope["path"] == "/api/questions"
+            else int(os.getenv("MANTIS_MAX_UPLOAD_MB", "20")) * 1024 * 1024 + 64 * 1024
+        )
         headers = dict(scope["headers"])
         length = headers.get(b"content-length")
         if length is not None:
