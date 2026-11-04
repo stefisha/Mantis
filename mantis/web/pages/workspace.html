@@ -40,47 +40,37 @@
         <span class="rail-wordmark">MANTIS</span>
       </aside>
       <main class="chat-app">
-        <header class="app-header">
-          <div class="app-title">
+        <header class="chat-toolbar">
+          <div class="toolbar-context">
             <a class="mobile-brand brand-icon" href="/" aria-label="Mantis home"
               ><img src="/static/assets/mantis-mark.png" alt=""
             /></a>
-            <div>
-              <p class="eyebrow">YOUR MAINTENANCE CO-PILOT</p>
-              <h1>
-                Mantis <span id="connection-dot" class="status-dot"></span>
-              </h1>
-            </div>
+            <h1 class="sr-only">Mantis maintenance assistant</h1>
+            <button
+              id="manuals-button"
+              class="context-button"
+              aria-haspopup="dialog"
+            >
+              ▤ <span id="selected-label">Your manuals</span>
+              <span aria-hidden="true">⌄</span>
+            </button>
           </div>
-          <div class="header-actions">
-            <button class="quiet-button" id="new-chat" aria-label="New chat">
+          <div class="toolbar-actions">
+            <span id="connection-dot" hidden></span
+            ><span id="connection-label" class="sr-only">Connecting…</span
+            ><button class="quiet-button" id="new-chat" aria-label="New chat">
               ↺ <span>New chat</span></button
-            ><button class="primary-button" id="upload-header">
-              ↑ <span>Upload manual</span>
+            ><button id="demo-button" class="quiet-button">
+              Try an example
             </button>
           </div>
         </header>
-        <div class="context-bar">
-          <button
-            id="manuals-button"
-            class="context-button"
-            aria-haspopup="dialog"
-          >
-            ▤ <span id="selected-label">Connect a manual</span>
-            <span aria-hidden="true">⌄</span>
-          </button>
-          <div class="context-actions">
-            <span class="connection-label" id="connection-label"
-              >Connecting…</span
-            ><button id="demo-button" class="example-button">
-              Try an example ↗
-            </button>
-          </div>
-        </div>
         <div id="mode-banner" class="mode-banner" hidden>
-          <span>EXAMPLE CONVERSATION</span>
-          <p>Scripted responses. Your photos stay local and aren’t analyzed.</p>
-          <button id="exit-demo">Use my own manual ↗</button>
+          <span>Example · scripted replies, no AI calls</span>
+          <p class="sr-only">
+            Personal photos stay local and aren’t analyzed in example mode.
+          </p>
+          <button id="exit-demo">Use my manual ↗</button>
         </div>
         <div
           class="chat-scroll"
@@ -92,22 +82,26 @@
             <span class="welcome-mark brand-icon"
               ><img src="/static/assets/mantis-mark.png" alt=""
             /></span>
-            <p class="eyebrow">THE NEXT STEP STARTS WITH CONTEXT</p>
-            <h2>What are we working on?</h2>
-            <p>
-              Describe the symptom. Show the alarm.<br />Bring the right manual
-              into the conversation.
-            </p>
-            <div class="welcome-actions">
-              <button id="upload-welcome" class="primary-button">
-                ↑ Upload your manual</button
-              ><button id="example-welcome" class="quiet-button">
-                ▷ Try an example
+            <h2>What can I help with?</h2>
+            <p>Upload your manual, describe a symptom, or try a sample.</p>
+            <div class="sample-inputs" aria-label="Sample questions">
+              <button data-starter="vibration">
+                <span>⌁</span><strong>Excessive vibration</strong
+                ><small>Explore a symptom</small>
+              </button>
+              <button data-starter="overheating">
+                <span>♨</span><strong>Overheating</strong
+                ><small>Find the right context</small>
+              </button>
+              <button data-starter="alarm">
+                <span>▧</span><strong>Read an alarm photo</strong
+                ><small>Try the CNC example</small>
+              </button>
+              <button data-starter="followup">
+                <span>▤</span><strong>Maintenance records</strong
+                ><small>Prepare a handover</small>
               </button>
             </div>
-            <p class="welcome-footnote">
-              PDF manuals · equipment photos · page-level sources
-            </p>
           </section>
           <div
             id="messages"
@@ -154,7 +148,7 @@
               id="question"
               rows="1"
               maxlength="2000"
-              placeholder="Describe the issue or attach a photo…"
+              placeholder="Ask about a maintenance issue or attach a photo…"
               aria-describedby="composer-note"
             ></textarea>
             <button
@@ -163,13 +157,21 @@
               type="submit"
               aria-label="Send message"
             >
-              ↑
+              Send
             </button>
           </form>
-          <p class="composer-note" id="composer-note">
-            Add a PDF manual or a photo to get started. Live answers require an
-            API key.
-          </p>
+          <div class="composer-meta">
+            <button
+              type="button"
+              id="upload-header"
+              class="manual-upload-action"
+            >
+              ↑ Upload your own manual
+            </button>
+            <p class="composer-note" id="composer-note">
+              Live answers require an API key.
+            </p>
+          </div>
         </div>
       </main>
     </div>

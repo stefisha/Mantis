@@ -26,7 +26,7 @@ It began as an exploratory PDF-chat prototype. It now includes a product landing
 
 ## One conversation for the job
 
-The product page opens with a full-screen gradient hero, followed by a concise “How it works” section and a crisp HTML/CSS preview. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** opens that same interface with a sample conversation. Manuals live in a small drawer; there is no separate demo interface or library page.
+The product page opens with a full-screen black hero with a gradient headline, followed by a concise “How it works” section and a crisp HTML/CSS preview. Team credits and deeper technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** opens that same interface with a sample conversation. Manuals live in a small drawer; there is no separate demo interface or library page.
 
 ![Mantis product page](docs/assets/product.jpg)
 
@@ -65,7 +65,7 @@ Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[work
 
 ### 1. Try the same app with an example
 
-Choose **Try an example**, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). The chat starts with a scripted spindle-overload scenario. Try the illustrative alarm-screen attachment, ask a maintenance handover question, and expand the sample source. No API key or AI calls are involved. Personal photos attached in example mode stay in the browser and are not analyzed.
+Choose **Try an example**, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). The chat starts with a scripted spindle-overload scenario. A new chat also offers sample inputs for vibration, overheating, alarm photos, and maintenance records. Try the illustrative alarm-screen attachment, ask a maintenance handover question, and expand the sample source. No API key or AI calls are involved. Personal photos attached in example mode stay in the browser and are not analyzed.
 
 Choose **Exit example** or upload your own manual to leave example mode. Then attach a photo or ask about the selected manual to use the real backend. Switching modes resets the conversation, so example replies never enter a live request's history.
 
@@ -98,7 +98,7 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 ## Quality and current limits
 
 - **34 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **12 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
+- **13 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
 - **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.

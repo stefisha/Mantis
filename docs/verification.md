@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **34 passing Python regression tests** and **12 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **34 passing Python regression tests** and **13 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -23,7 +23,7 @@ Tests generate their own PDFs and replace the AI provider. They require no live 
 
 ## Manual browser checks
 
-The unified app was checked at 1280px and 390px: scripted spindle and alarm-photo examples, inline source expansion, keyboard submission, and no horizontal overflow. An isolated temporary server with a fake provider exercised the actual PDF upload, active-manual selection, source-backed question and follow-up, original PDF link, live photo request path, and manual drawer. That check made no external AI calls. The landing page uses crisp HTML/CSS instead of a screenshot preview. Its gradient hero fills the first screen at 1440×900 and 390×844; the workflow and example follow below. Section anchors clear the sticky header and neither layout overflows horizontally. README images show the actual local app/example.
+The unified app was checked at 1280px and 390px: scripted spindle and alarm-photo examples, inline source expansion, keyboard submission, and no horizontal overflow. An isolated temporary server with a fake provider exercised the actual PDF upload, active-manual selection, source-backed question and follow-up, original PDF link, live photo request path, and manual drawer. That check made no external AI calls. The landing page uses crisp HTML/CSS instead of a screenshot preview. Its black hero, with a gradient confined to “ON AUTOPILOT.”, fills the first screen at 1440×900 and 390×844; the workflow and example follow below. Section anchors clear the sticky header and neither layout overflows horizontally. README images show the actual local app/example.
 
 ## What this does not establish
 
@@ -40,3 +40,5 @@ CI builds the Python wheel and runs `scripts/check_package.py` against its extra
 `npm test` exercises the request controller and example boundaries directly: the last four successful text exchanges, current-message-only images, stale response suppression, abort/reset behavior, retries, manual/mode context resets, and zero provider calls for examples. It does not emulate browser layout.
 
 The new API regressions verify photo validation, extraction-to-retrieval flow, bounded/role-limited history, missing-key behavior, question request limits, and rejection of fabricated citations when no manual exists. Software test success does not validate real model image-reading accuracy.
+
+The follow-up visual correction restores the black landing palette with gradient text only on “ON AUTOPILOT.” and removes dashboard-style chat headers. The chat follows the original recording with a narrow logo rail, compact replies, orange user messages, a bottom Send composer, a small manual-upload action, and restored sample inputs.

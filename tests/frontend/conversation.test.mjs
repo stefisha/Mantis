@@ -179,3 +179,16 @@ test("repeated send while busy does not duplicate the provider call", async () =
   await first;
   assert.equal(count, 1);
 });
+
+test("restored sample questions have matching illustrative answers and sources", () => {
+  const hot = exampleResponse("What should I check for overheating?");
+  assert.match(hot.answer, /Overheating/);
+  assert.match(hot.sources[0].text, /cooling/);
+  assert.equal(hot.sources[0].page, 7);
+  const vibration = exampleResponse(
+    "What should I check for excessive vibration?",
+  );
+  assert.match(vibration.answer, /Excessive vibration/);
+  assert.doesNotMatch(vibration.answer, /overload message/);
+  assert.equal(vibration.sources[0].page, 4);
+});

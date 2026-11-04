@@ -1,7 +1,7 @@
 @import url("./tokens.css");
 :root {
   color-scheme: dark;
-  --orange: #ff8a35;
+  --orange: #ff781a;
   --muted: #9aa2b0;
   --mono: "JetBrains Mono", monospace;
 }
@@ -10,7 +10,7 @@
 }
 body {
   margin: 0;
-  background: #101114;
+  background: #121316;
   color: #f8fafc;
   font:
     14px/1.7 Inter,
@@ -35,7 +35,7 @@ a:focus-visible {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #111215ed;
+  background: #121316ed;
   backdrop-filter: blur(18px);
   border-bottom: 1px solid #ffffff0c;
 }
@@ -119,19 +119,8 @@ html {
 .hero {
   position: relative;
   overflow: hidden;
-  background: #0c0d10;
+  background: #0d0e11;
   text-align: center;
-}
-.hero::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 65% 65% at 50% -10%,
-    #ff79242b,
-    transparent 75%
-  );
 }
 .hero-inner {
   position: relative;
@@ -155,7 +144,7 @@ html {
   justify-content: center;
   gap: 10px;
   padding: 7px 12px;
-  background: #252429;
+  background: #232125;
   border: 1px solid #ffffff08;
   border-radius: 24px;
   color: #efaa76;
@@ -178,8 +167,8 @@ html {
   margin: 0;
 }
 .hero h1 > span {
-  color: #ffba89;
-  background: linear-gradient(105deg, #ffddca 3%, #ffaf89 57%, #ffb754 100%);
+  color: #ffc19c;
+  background: linear-gradient(100deg, #f7dfd2, #ffb083 70%, #ffb95f);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -187,12 +176,12 @@ html {
 .hero-description {
   font-size: 17px;
   line-height: 1.9;
-  color: #d4d9e1;
+  color: #d8c7bf;
   margin: 24px auto 27px;
 }
 .hero-description > span {
   font-size: 13px;
-  color: #939dab;
+  color: #97999f;
 }
 .hero-actions {
   display: flex;
@@ -206,7 +195,7 @@ html {
   width: min(960px, 100%);
   padding: 22px 14px;
   margin-top: 40px;
-  background: #1b1c23;
+  background: #1b1c21;
   border: 1px solid #ffffff05;
   border-radius: 12px;
 }
@@ -243,7 +232,7 @@ html {
 .how-section {
   padding: 90px 0 70px;
   border-bottom: 1px solid #ffffff06;
-  background: #111216;
+  background: #121316;
 }
 .section-heading {
   text-align: center;

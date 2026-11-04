@@ -50,15 +50,13 @@ function clearPhoto() {
 function updateMode() {
   const doc = state.documents.find((item) => item.id === state.selected);
   $("selected-label").textContent = state.demo
-    ? "Sample CNC scenario"
+    ? "Example conversation"
     : doc
       ? doc.equipment || doc.name
-      : "Connect a manual";
+      : "Your manuals";
   $("mode-banner").hidden = !state.demo;
   $("suggestions").hidden = !state.demo;
-  $("demo-button").textContent = state.demo
-    ? "Exit example ↗"
-    : "Try an example ↗";
+  $("demo-button").textContent = state.demo ? "Exit example" : "Try an example";
   $("photo-note").textContent = state.demo
     ? "Local preview only · not analyzed in this example"
     : "Sent to OpenAI when you send this message.";
@@ -93,11 +91,8 @@ function choose(id, demo = false) {
 }
 function addMessage(role, text, { result = null, photo = null } = {}) {
   const node = element("article", "message " + role);
-  const header = element(
-    "div",
-    "message-header",
-    role === "user" ? "YOU" : "MANTIS",
-  );
+  const header = element("div", "message-header");
+  header.append(element("span", "sr-only", role === "user" ? "You" : "Mantis"));
   if (role === "assistant") {
     const mark = element("img");
     mark.src = "/static/assets/mantis-mark.png";
@@ -159,17 +154,12 @@ function addMessage(role, text, { result = null, photo = null } = {}) {
   scrollChat();
   return node;
 }
-function startExample() {
+function startExample(prompt = "spindle") {
   if (state.uploading) return;
   choose("", true);
   $("welcome").hidden = true;
-  addMessage(
-    "assistant",
-    "Hi, I’m Mantis. Let’s put the machine’s symptoms into context. This example follows a CNC maintenance conversation—try the spindle question, then the alarm photo.",
-    { result: { demo: true, sources: [] } },
-  );
-  $("question").value = DEMO_PROMPTS.spindle;
-  ask();
+  $("question").value = DEMO_PROMPTS[prompt];
+  ask(null, prompt === "alarm");
 }
 async function ask(event, samplePhoto = false) {
   event?.preventDefault();
@@ -383,7 +373,13 @@ $("new-chat").addEventListener("click", () => {
 $("demo-button").addEventListener("click", () =>
   state.demo ? choose("") : startExample(),
 );
-$("example-welcome").addEventListener("click", startExample);
+document
+  .querySelectorAll("[data-starter]")
+  .forEach((button) =>
+    button.addEventListener("click", () =>
+      startExample(button.dataset.starter),
+    ),
+  );
 $("exit-demo").addEventListener("click", () => {
   choose("");
   $("manuals-dialog").showModal();
@@ -399,7 +395,7 @@ document.querySelectorAll("[data-prompt]").forEach((button) =>
 );
 $("close-manuals").addEventListener("click", () => $("manuals-dialog").close());
 $("manual-search").addEventListener("input", renderDocuments);
-["upload-header", "upload-welcome", "upload-drawer"].forEach((id) =>
+["upload-header", "upload-drawer"].forEach((id) =>
   $(id).addEventListener("click", pickManual),
 );
 $("file-input").addEventListener("change", (event) => {
