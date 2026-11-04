@@ -22,8 +22,9 @@ def render_page(web_dir, filename):
 
 class FrontendFiles(StaticFiles):
     async def get_response(self, path, scope):
-        if path.startswith("v/"):
-            match = re.fullmatch(r"v/[0-9a-f]{16}/(.+)", path)
+        normalized = path.replace("\\", "/")
+        if normalized.startswith("v/"):
+            match = re.fullmatch(r"v/[0-9a-f]{16}/(.+)", normalized)
             if not match:
                 raise HTTPException(404)
             path = match.group(1)

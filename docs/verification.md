@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **42 passing Python regression tests** and **15 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **48 passing Python regression tests** and **20 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -52,3 +52,5 @@ Final layout checks verified that the landing demo keeps all three tested exchan
 Saved-chat tests cover persistence, workspace isolation, deletion, revision conflicts, immutable manual/mode, request/message/chat quotas, exclusion of personal photo bytes, and restoring bounded context while invalidating an older pending reply.
 
 Browser checks for Your chats verified automatic save, reopening after a fresh page load, continuing a restored conversation, separate manuals/chats drawers, and mobile access without horizontal overflow or application console errors.
+
+Review regressions simulate Windows-normalized asset paths and a second writer immediately after a chat transaction commits. The workspace controller is also exercised with a DOM double and deferred requests: blocked manual changes/deletion during failed or pending saves, retry during a follow-up, removed-manual recovery, discard confirmation, and successful upload selection. These are state/interaction tests, not browser layout checks.

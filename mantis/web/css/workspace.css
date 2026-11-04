@@ -301,8 +301,8 @@ button {
   margin-bottom: 10px;
 }
 .answer-note {
-  color: #77736e;
-  font-size: 8px;
+  color: #a39c94;
+  font-size: 10px;
   margin: 6px 0 0;
 }
 .citations {
@@ -436,9 +436,9 @@ button {
   color: #f3ba89;
 }
 .composer-note {
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.7;
-  color: #777b83;
+  color: #a3a9b3;
   margin: 0;
   text-align: right;
 }
@@ -792,7 +792,7 @@ dialog input {
     flex-wrap: wrap;
   }
   .composer-note {
-    font-size: 8px;
+    font-size: 10px;
     max-width: 220px;
   }
   .manual-upload-action {

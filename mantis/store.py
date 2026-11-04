@@ -154,18 +154,22 @@ class Store:
                 )
             ]
 
+    @staticmethod
+    def _chat_record(row):
+        if not row:
+            return None
+        result = dict(row)
+        result.pop("workspace")
+        result["messages"] = json.loads(result["messages"])
+        return result
+
     def chat(self, workspace, identifier):
         with self.connect() as db:
             row = db.execute(
                 "SELECT * FROM chats WHERE workspace=? AND id=?",
                 (workspace, identifier),
             ).fetchone()
-            if not row:
-                return None
-            result = dict(row)
-            result.pop("workspace")
-            result["messages"] = json.loads(result["messages"])
-            return result
+            return self._chat_record(row)
 
     def save_chat(self, workspace, data, identifier=None):
         title = data["messages"][0]["content"].strip().replace("\n", " ")[:80]
@@ -217,7 +221,12 @@ class Store:
                         updated,
                     ),
                 )
-        return self.chat(workspace, identifier)
+            # Capture exactly the revision written here before another writer can run.
+            row = db.execute(
+                "SELECT * FROM chats WHERE workspace=? AND id=?",
+                (workspace, identifier),
+            ).fetchone()
+            return self._chat_record(row)
 
     def delete_chat(self, workspace, identifier):
         with self.connect() as db:

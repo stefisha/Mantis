@@ -97,8 +97,8 @@ Read the [architecture guide](docs/architecture.md) for retrieval behavior, conc
 
 ## Quality and current limits
 
-- **42 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **15 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
+- **48 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
+- **20 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
 - **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.
