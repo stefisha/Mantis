@@ -445,16 +445,25 @@ function newChat() {
   if ($("chats-dialog").open) $("chats-dialog").close();
 }
 async function openSavedChat(id) {
-  if (state.uploading || state.saving || state.unsaved)
-    return toast("Save the current conversation before switching chats.");
+  if (state.uploading || state.saving)
+    return toast("Wait for the current chat to finish saving.");
+  const discardUnsaved = state.unsaved;
+  if (
+    discardUnsaved &&
+    !confirm(
+      "This chat has unsaved messages. Reopen the saved conversation and discard those unsaved changes?",
+    )
+  )
+    return;
   const current = ++historyRequest;
   const generation = state.chatGeneration;
   try {
     const { chat: saved } = await api(`/chats/${encodeURIComponent(id)}`);
     if (current !== historyRequest || generation !== state.chatGeneration)
       return;
-    if (state.saving || state.uploading || state.unsaved)
+    if (state.saving || state.uploading || (state.unsaved && !discardUnsaved))
       return toast("Wait for this chat to finish saving before switching.");
+    state.unsaved = false;
     choose(saved.document_id, Boolean(saved.demo));
     state.chatId = saved.id;
     state.chatRevision = saved.revision;
