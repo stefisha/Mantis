@@ -18,7 +18,7 @@ flowchart LR
 
 ## Indexing and persistence
 
-`mantis/middleware.py` bounds upload bodies before multipart parsing, including chunked requests and misleading Content-Length headers. File-size, page-count, and chunk-count limits also bound accepted input. Scan-only PDFs need OCR before upload.
+`mantis/middleware.py` bounds upload bodies before multipart/JSON parsing, including chunked requests and misleading Content-Length headers. Question JSON bodies have a fixed 12 MB cap. File-size, page-count, and chunk-count limits also bound accepted input. Scan-only PDFs need OCR before upload.
 
 `mantis/rag.py` extracts overlapping chunks within individual pages, preserving neighboring lines. OpenAI embeds each chunk once, in batches. `mantis/store.py` stores the original PDF, equipment label, chunks, embeddings, and embedding model in SQLite.
 
@@ -30,7 +30,7 @@ Each question specifies one manual. Retrieval embeds the question using that man
 
 The model returns a structured answer and source identifiers. The API checks that identifiers refer to retrieved passages and that a substantive answer has sources. These checks establish source identity; they do not prove that every answer claim is supported. The threshold and answer behavior need evaluation against representative manuals and questions.
 
-Each question is independent. The visible chat is a session transcript, not model conversation memory.
+The frontend supplies up to eight successful text turns for follow-up context. Retrieval includes the last two user questions and current photo observations. History and image text are treated as untrusted context, never as verified manual evidence. New chat, manual changes, and live/example transitions reset history. Photos are validated (format, bytes, pixels, animation), transcribed/described by the configured image-capable model, and used to inform retrieval. Without relevant excerpts, photos can support observations and clarification but cannot produce a source-backed diagnosis. No photos or chat turns are persisted by Mantis.
 
 ## Workspace boundary
 
@@ -44,7 +44,7 @@ The current limits are 30 manuals per workspace and 2,000 chunks per manual. Bru
 
 ## Product and frontend layout
 
-`/` serves the product presentation; `/workspace` serves the working assistant. Both pages are packaged under `mantis/web/pages/` and use self-hosted assets. CSS lives in `mantis/web/css/`; JavaScript modules live in `mantis/web/js/`. The product demo and workspace share an API client module. Product navigation uses real section anchors and links into the workspace. Demo mode is activated by `/workspace#demo`.
+`/` serves the product presentation; `/workspace` serves the working assistant. Both pages are packaged under `mantis/web/pages/` and use self-hosted assets. CSS lives in `mantis/web/css/`; JavaScript modules live in `mantis/web/js/`. The product page is a static presentation with a real screenshot and links into one working chat app. `/workspace#demo` loads a scripted example into that same app. `conversation.js` owns cancellation and bounded text history; `examples.js` contains the key-free scenarios; `workspace.js` binds uploads, photos, the manual drawer, and inline expandable sources. There is no parallel demo interface or full library page.
 
 The landing page follows the owner-supplied design reference while using the original presentation's logos, team portraits, names, and role labels. Mock telemetry, inventory records, invented performance figures, and unsupported certifications from the reference are not product data.
 

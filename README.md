@@ -22,15 +22,15 @@
 
 **Mantis helps maintenance engineers find answers in equipment manuals and trace them back to the source.** Upload a PDF, select the right equipment manual, and ask about a symptom, fault code, or maintenance procedure. Inspect the supporting passages and open the original PDF at the cited page.
 
-It began as an exploratory PDF-chat prototype. It now includes a product landing page, a dedicated maintenance workspace, a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
+It began as an exploratory PDF-chat prototype. It now includes a product landing page, a single chat app, a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
 
-## Product and workspace
+## One conversation for the job
 
-The product page introduces Mantis and includes an interactive, scripted chat demo. The dedicated workspace handles your manuals, questions, and source inspection.
+The compact product page introduces Mantis with a crisp HTML/CSS preview; team credits and technical details live in the docs. **Open Mantis** opens the working chat: upload a manual, ask a question, attach a photo, and expand sources beneath the answer. **Try an example** opens that same interface with a sample conversation. Manuals live in a small drawer; there is no separate demo interface or library page.
 
-![Mantis product page](docs/assets/product.png)
+![Mantis product page](docs/assets/product.jpg)
 
-![Mantis maintenance workspace with its equipment-manual selector, troubleshooting assistant, and source inspector](docs/assets/workspace.png)
+![Mantis chat with a connected context, inline sources, and manual upload](docs/assets/workspace.jpg)
 
 ## What you can do
 
@@ -42,7 +42,7 @@ The product page introduces Mantis and includes an interactive, scripted chat de
 | **Manage your workspace**  | Reuse duplicate files, delete individual manuals, or clear documents and their indexes.        |
 | **Try it without a key**   | Try a scripted CNC conversation, a prepared alarm-screen example, and local photo previews with no AI calls. |
 
-The current app is a **local pilot**. It does not operate machines or certify maintenance work. Each question is independent; the visible conversation is a session transcript. Check answers against the cited manual and approved site procedures.
+The current app is a **local pilot**. It does not operate machines or certify maintenance work. The last four successful text exchanges provide follow-up context. Starting a new chat, changing manuals, or changing between live/example modes clears that context. Check answers against the cited manual and approved site procedures.
 
 ## Quick start
 
@@ -62,21 +62,28 @@ mantis --reload
 
 Open the **[product page](http://127.0.0.1:8000)** or go directly to the **[workspace](http://127.0.0.1:8000/workspace)**. The product page is at `/`; the working assistant is at `/workspace`. FastAPI serves both the UI and API; there is no separate frontend server or build step. The setup command preserves an existing `.env`. See [running and updating](docs/running.md) for alternative entry points, environment/data locations, and troubleshooting.
 
-![Mantis scripted CNC chat demo](docs/assets/conversation-demo.jpg)
 
-### 1. Explore the demo
+### 1. Try the same app with an example
 
-On the product page, choose **Try the interactive demo** for a chat inspired by the original Mantis prototype: ask about a spindle overload, try a prepared alarm-screen photo, or follow up with a maintenance handover question. You can attach a JPEG, PNG, or WebP image up to 8 MB for a local preview. Personal images stay in the browser and are **not analyzed**; replies are explicitly scripted. The alarm screen is an original illustration, not a real equipment reading.
+Choose **Try an example**, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). The chat starts with a scripted spindle-overload scenario. Try the illustrative alarm-screen attachment, ask a maintenance handover question, and expand the sample source. No API key or AI calls are involved. Personal photos attached in example mode stay in the browser and are not analyzed.
 
-The dedicated workspace has a separate manual demo: choose **Explore demo**, then a suggested question, or open [`/workspace#demo`](http://127.0.0.1:8000/workspace#demo). It returns illustrative training-manual excerpts. Both demos work without an API key, make no AI calls, and are not equipment service procedures.
+Choose **Exit example** or upload your own manual to leave example mode. Then attach a photo or ask about the selected manual to use the real backend. Switching modes resets the conversation, so example replies never enter a live request's history.
 
 ### 2. Connect your manuals
 
 Set `OPENAI_API_KEY` in the local `.env` file, then restart the server. Upload a text-based PDF, optionally label its equipment model, and select it before asking a question. Defaults allow 20 MB and 300 pages per PDF, with up to 30 manuals per workspace.
 
-Manual text is sent to OpenAI for embeddings; questions and retrieved excerpts are sent for answer generation. The original PDF stays in the local database. See [configuration and data flow](docs/configuration.md).
+Manual text is sent to OpenAI for embeddings; questions, recent text context, photo observations, and retrieved excerpts are sent for answer generation. The original PDF stays in the local database. See [configuration and data flow](docs/configuration.md).
 
-### 3. Verify the source
+### 3. Show the alarm
+
+In live mode, attach one JPEG, PNG, or WebP photo (up to 8 MB and 20 megapixels) beside the message. Mantis sends it to OpenAI to read visible details and alarm text. With a selected manual, those observations inform retrieval before a source-backed reply is generated. Without a manual, replies are limited to observations and collecting context, with no fabricated manual citations. A photo is not a verified diagnosis.
+
+Live image handling follows the [official OpenAI image-input format](https://developers.openai.com/api/docs/guides/images-vision). The configured chat model must support image input and strict structured outputs. This request path has been tested with a fake provider; live image accuracy and provider compatibility still need validation with a valid key.
+
+Mantis does not persist photos or conversations. The browser sends the last four successful text exchanges as follow-up context; old image bytes are not resent. Reattach a photo when it needs to be examined again. The provider's data-processing policies apply to live requests.
+
+### 4. Verify the source
 
 Select a citation to inspect its passage or open the PDF at the referenced page. A retrieval cutoff can return an insufficient-evidence response. Valid source identifiers do **not** prove that every generated claim is supported; a representative answer-quality evaluation is still needed.
 
@@ -84,14 +91,14 @@ Select a citation to inspect its passage or open the PDF at the referenced page.
 
 **PDF → page-local chunks → embeddings → selected-manual retrieval → structured answer → validated source IDs.**
 
-FastAPI handles requests; SQLite stores manuals, chunks, and embeddings. The frontend is plain HTML/CSS/JavaScript, organized into product and workspace pages with shared API access. Duplicate detection and quota enforcement are serialized in a write transaction. An ASGI body limiter rejects oversized uploads before multipart parsing.
+FastAPI handles requests; SQLite stores manuals, chunks, and embeddings. The frontend is plain HTML/CSS/JavaScript, organized into a compact product page and one working chat. Duplicate detection and quota enforcement are serialized in a write transaction. An ASGI body limiter rejects oversized uploads before multipart/JSON parsing.
 
 Read the [architecture guide](docs/architecture.md) for retrieval behavior, concurrency, isolation, and scale boundaries.
 
 ## Quality and current limits
 
-- **24 regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
-- **12 frontend regressions** cover chat reset during pending replies, local photo handling, scripted scenario boundaries, attachment validation, and workspace source reveal/reduced motion.
+- **34 Python regression tests** cover real PDF extraction with a fake provider, storage isolation, persistence, deletion, concurrency, request limits, and citation handling.
+- **12 frontend regressions** cover bounded follow-up context, stale responses and reset cancellation, retry handling, mode/manual resets, current-message-only photos, and key-free examples.
 - **CI** runs Python/frontend tests and lint/format checks, JavaScript syntax/format checks, and an independent built-wheel smoke test for pages, assets, and the demo API.
 - **Browser checks** cover desktop/mobile layouts, demo citations, keyboard focus, and cancelling/reselecting a file.
 - **Still to evaluate:** representative industrial answer quality and live-provider behavior. Software tests are not evidence of troubleshooting accuracy.

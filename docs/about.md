@@ -16,15 +16,15 @@ The engineer remains responsible for checking the actual manual and following ap
 - Questions scoped to one equipment manual, with a retrieval cutoff for weak matches.
 - Answers with validated source identifiers, page numbers, and inspectable excerpts.
 - Browser-scoped workspaces, duplicate detection, and document/index deletion.
-- A scripted, chat-first product demo with a prepared alarm-screen illustration and browser-local photo previews; a separate workspace demo returns illustrative training excerpts. Personal photos are not analyzed.
+- One chat for manual questions, photos, follow-ups, and inline sources. A key-free example runs in that same interface with scripted replies; personal example photos stay local.
 
 The application is a local pilot. Software regression tests cover its API and storage behavior; retrieval quality and answer correctness have not yet been evaluated on a representative set of industrial manuals.
 
 ## Research and next steps
 
-The original notebooks explore Whisper transcription and Grounding DINO object detection. These are research artifacts, not integrated voice or visual-assistance features.
+The original notebooks explore Whisper transcription and Grounding DINO object detection. These are research artifacts, not integrated speech or object-detection features. Live photo reading uses the chat provider, not the historical object detector.
 
-The next product steps are representative retrieval evaluation, authenticated team workspaces, and a deliberate shared-deployment design. Speech and vision can then build on a reliable manual-to-answer workflow.
+The next product steps are representative retrieval evaluation, authenticated team workspaces, and a deliberate shared-deployment design. The live photo request path is implemented and tested with a fake provider; real visual accuracy, provider compatibility, and grounded-answer quality need evaluation. Speech remains research work.
 
 ## Project background
 

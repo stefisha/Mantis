@@ -1,6 +1,6 @@
 # Verification record
 
-The current implementation has **24 passing Python regression tests** and **8 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
+The current implementation has **34 passing Python regression tests** and **12 frontend regression tests**, plus Python lint/format checks and frontend syntax/format checks in [GitHub Actions](../.github/workflows/checks.yml).
 
 ## Automated coverage
 
@@ -23,7 +23,7 @@ Tests generate their own PDFs and replace the AI provider. They require no live 
 
 ## Manual browser checks
 
-The desktop and mobile workspace layouts, demo question/citation flow, question-field keyboard focus, and cancelling/reselecting the same PDF were checked in the local browser. The product chat was separately checked at 1280px and 390px: prepared alarm photo, local PNG preview, explicit no-analysis reply, chat reset, keyboard submission, and no horizontal overflow. No browser console errors were observed. The README screenshot shows the actual local application, not an AI-generated interface mockup.
+The unified app was checked at 1280px and 390px: scripted spindle and alarm-photo examples, inline source expansion, keyboard submission, and no horizontal overflow. An isolated temporary server with a fake provider exercised the actual PDF upload, active-manual selection, source-backed question and follow-up, original PDF link, live photo request path, and manual drawer. That check made no external AI calls. The compact landing page uses crisp HTML/CSS instead of a screenshot preview. README images show the actual local app/example.
 
 ## What this does not establish
 
@@ -37,4 +37,6 @@ CI builds the Python wheel and runs `scripts/check_package.py` against its extra
 
 ## Frontend regression coverage
 
-`npm test` uses Node's built-in test runner with minimal element/media-query doubles. It verifies reset invalidation for pending replies, separate responses for personal and sample images, object-URL cleanup, file-picker cancellation, attachment type/size limits, blank-message handling, and explicit scripted-response boundaries. Workspace source reveal is checked at its CSS breakpoint with reduced motion. These state/callback tests complement browser layout checks; they do not emulate browser layout.
+`npm test` exercises the request controller and example boundaries directly: the last four successful text exchanges, current-message-only images, stale response suppression, abort/reset behavior, retries, manual/mode context resets, and zero provider calls for examples. It does not emulate browser layout.
+
+The new API regressions verify photo validation, extraction-to-retrieval flow, bounded/role-limited history, missing-key behavior, question request limits, and rejection of fabricated citations when no manual exists. Software test success does not validate real model image-reading accuracy.

@@ -41,9 +41,11 @@ curl --cookie data/dev.cookies \
   http://127.0.0.1:8000/api/questions
 ```
 
-Real questions use `demo: false` and the selected manual's `document_id`, returned by the upload/list endpoints. Each question is independent. Responses contain `answer`, `sources`, `insufficient_evidence`, and `demo`. A source contains its document identifier, name, page, and text.
+Real questions use `demo: false` and the selected manual's `document_id`, returned by the upload/list endpoints. Optional `history` contains up to eight text turns (`role`: `user` or `assistant`, `content`: up to 10,000 characters). The browser sends the last four successful exchanges and resets them when the manual or mode changes. History is context, not evidence. Responses contain `answer`, `sources`, `insufficient_evidence`, and `demo`. A source contains its document identifier, name, page, and text.
 
-For real PDF uploads, configure the provider first. Uploaded text is sent for embedding, and retrieved passages/questions are sent for answer generation. Duplicate detection can reuse an existing document; a new upload can incur provider usage.
+Optional `image` is a base64 data URL for one valid JPEG, PNG, or WebP image up to 8 MB / 20 megapixels; animated images and remote URLs are rejected. Question request bodies are limited to 12 MB before JSON parsing. The image is sent to the provider for visible observations/transcription, which inform manual retrieval. Without a manual, an image (or follow-up history) can request observations/context collection, with `insufficient_evidence: true` and no citations. Old images are not part of text history. Photos and chat turns are not stored by Mantis. The legacy `demo: true` API still returns training-manual excerpts and rejects attached images; the app’s example conversation runs locally in the same chat UI.
+
+For real PDF uploads, configure the provider first. Uploaded text is sent for embedding, and retrieved passages/questions, recent text history, and photo observations are sent for answer generation. Duplicate detection can reuse an existing document; a new upload can incur provider usage.
 
 ## Expected errors
 
