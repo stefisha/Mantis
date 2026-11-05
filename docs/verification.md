@@ -54,3 +54,5 @@ Saved-chat tests cover persistence, workspace isolation, deletion, revision conf
 Browser checks for Your chats verified automatic save, reopening after a fresh page load, continuing a restored conversation, separate manuals/chats drawers, and mobile access without horizontal overflow or application console errors.
 
 Review regressions simulate Windows-normalized asset paths and a second writer immediately after a chat transaction commits. The workspace controller is also exercised with a DOM double and deferred requests: blocked manual changes/deletion during failed or pending saves, retry during a follow-up, removed-manual recovery, discard confirmation, and successful upload selection. These are state/interaction tests, not browser layout checks.
+
+Conversation alignment was checked at 1440 × 900 and 390 × 844: the transcript and composer share both horizontal boundaries, user/reply/source blocks remain inside that column, and neither viewport has horizontal overflow. The README chat screenshot reflects this layout.
