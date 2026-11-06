@@ -22,7 +22,9 @@
 
 **Mantis helps maintenance engineers find answers in equipment manuals and trace them back to the source.** Upload a PDF, select the right equipment manual, and ask about a symptom, fault code, or maintenance procedure. Inspect the supporting passages and open the original PDF at the cited page.
 
-It began as an exploratory PDF-chat prototype. It now includes a product landing page, a single chat app, a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
+Built with my team at a Startit GenAI hackathon in 2024, where we secured second place. My contribution spanned architecture, frontend, backend and deployment. We later explored it as a startup, but progress stalled due to limited availability of digitized equipment manuals among prospective clients in Serbia.
+
+The application now includes a product landing page, a single chat app, a persistent manual library, browser-scoped workspaces, single-pass indexing, validated citation identifiers, and an offline demo. Speech and object-detection notebooks remain research work.
 
 ## One conversation for the job
 
